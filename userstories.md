@@ -1,6 +1,6 @@
 ## user stories
 
-+ En tant que joueur :
+En tant que joueur :
 
 + je souhaite "fournir le chemin d'un fichier contenant l'état initial de la grille" afin de "démarrer le jeu dans un état initial voulu"
 
