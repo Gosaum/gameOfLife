@@ -10,7 +10,7 @@ En tant que joueur :
 
 + Je souhaite "en mode graphique changer la durée entre deux itérations" afin de "regarder le déroulement de la partie à mon rythme"
 
-+ Je souhaite "que le jeu s'arrête l'état de la grille n'évolue plus"
++ Je souhaite "que le jeu s'arrête quand l'état de la grille n'évolue plus"
 
 + Je souhaite "quitter le programme à tout moment" afin de "arrêter le jeu"
 
