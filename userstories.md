@@ -14,6 +14,8 @@ En tant que joueur :
 
 + je souhaite "avoir accès à un mode graphique" afin de "regarder en direct le jeu"
 
++ je souhaite "modifier la durée entre deux itérations" afin de "avoir le temps de comprendre ce qui est affiché" ou afin de "expérimenter avec le jeu"
+
 + je souhaite "mettre en pause la partie en mode graphique" afin de "analyser la grille affichée"
 
 + je souhaite "changer l'état d'une ou de plusieurs cellules quand le jeu est en pause" afin de "expérimenter avec le jeu
