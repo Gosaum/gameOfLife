@@ -2,22 +2,25 @@
 
 En tant que joueur :
 
-+ je souhaite "au démarrage de l'application choisir entre un mode console et un un mode graphique" afin de "avoir le choix entre obtenir un fichier contenant les résultat ou regarder le déroulement en direct"
++ Je souhaite "fournir le chemin d'un fichier contenant les paramètres de la partie" afin de "démarrer le jeu dans un état initial voulu et pour un nombre défini d'itérations"
 
-+ je souhaite "au démarrage du jeu en mode console fournir le chemin d'un fichier qui contient les dimensions de la grille, son état initial et le nombre d'itérations " afin de "paramétrer le démarrage du jeu"
++ Je souhaite "avoir accès à un mode console qui écrit dans un fichier le déroulement de la partie" afin de "avoir accès à toutes les itérations d'une partie et pouvoir analyser le résultat du jeu pour un état initial et un nombre d'itérations données"
 
-+ je souhaite "en mode console obtenir un fichier avec le résultat de chaque itération" afin de "analyser le jeu"
++ Je souhaite "jouer sur une interface graphique" afin de "regarder le déroulement de la partie en direct"
 
-+ je souhaite "au démarrage du jeu en mode graphique pouvoir fournir le chemin d'un fichier qui contient les dimensions de la grille, son état initial et le nombre d'itérations " afin de "paramétrer le démarrage du jeu"
++ Je souhaite "en mode graphique changer la durée entre deux itérations" afin de "regarder le déroulement de la partie à mon rythme"
 
-+ je souhaite "au démarrage du jeu en mode graphique pouvoir démarrer sur une grille vierge" afin de "rajouter des cellules par la suite sans passer par un fichier"
++ Je souhaite "que le jeu s'arrête l'état de la grille n'évolue plus"
 
-+ je souhaite "modifier la durée entre deux itérations en mode graphique" afin de "avoir le temps de comprendre ce qui est affiché
++ Je souhaite "quitter le programme à tout moment" afin de "arrêter le jeu"
 
-+ je souhaite "mettre en pause la partie en mode graphique" afin de "analyser la grille affichée"
+### extensions
 
-+ je souhaite "changer l'état d'une ou de plusieurs cellules quand le jeu est en pause" afin de "expérimenter avec le jeu"
+En tant que joueur :
 
-+ je souhaite "définir des cellules obstacles" afin de "expérimenter avec le jeu"
++ Je souhaite "jouer sur une grille torique" afin de "expérimenter avec le jeu"
 
-+ je souhaite "jouer sur grille torique" afin de "expérimenter avec le jeu"
++ Je souhaite "définir des cellules obstacles" afin de "expérimenter avec le jeu"
+
++ Je souhaite "intégrer de nouvelles cellules à la grille pendant la partie" afin de "expérimenter avec le jeu"
+
