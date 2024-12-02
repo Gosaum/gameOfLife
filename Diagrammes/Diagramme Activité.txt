@@ -1,0 +1,27 @@
+flowchart TD
+    A[Lancer l'application] --> UT[Exécuter les tests unitaires]
+    UT --> B{Tests réussis ?}
+    B -->|Non| UE[Afficher erreur des tests] --> Z[Fin]
+    B -->|Oui| C{Mode choisi}
+
+    C -->|Mode Console| D[Demander le chemin du fichier]
+    D --> E{Chemin valide ?}
+    E -->|Non| F[Afficher message d'erreur] --> D
+    E -->|Oui| G[Demander le nombre d'itérations]
+    G --> H[Lancer la simulation]
+    H --> I[Afficher les résultats]
+    I --> J[Afficher la raison de la fin]
+    J --> K[Créer fichier output]
+    K --> L[Attente pour fermer]
+    L --> Z
+
+    C -->|Mode GUI| M[Charger ou créer une grille]
+    M -->|Créer| N[Configurer une nouvelle grille]
+    N --> O[Sauvegarder ou lancer la simulation]
+    O -->|Sauvegarder| P[Sauvegarder la grille]
+    O -->|Lancer| Q[Lancer la simulation GUI]
+    Q --> Z
+
+    M -->|Charger| R[Charger le fichier sélectionné]
+    R --> Q
+    C -->|Quitter| Z
