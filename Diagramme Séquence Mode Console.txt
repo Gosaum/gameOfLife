@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant User
+    participant ConsoleMode
+    participant Grid
+    participant ErrorHandler
+
+    ConsoleMode->>User: Demande le fichier d'entrée
+    User->>ConsoleMode: Fournit le chemin du fichier
+    ConsoleMode->>Grid: Charge la grille
+
+    alt Fichier invalide
+        ConsoleMode->>ErrorHandler: Affiche une erreur
+        ErrorHandler->>User: "Erreur : fichier introuvable"
+    else Fichier valide
+        ConsoleMode->>User: "Grille chargée"
+        ConsoleMode->>User: Demande le nombre d'itérations
+        User->>ConsoleMode: Fournit un nombre
+        ConsoleMode->>User: Demande si la grille est torique
+        User->>ConsoleMode: Fournit une réponse
+
+        loop Pour chaque itération
+            ConsoleMode->>Grid: Met à jour la grille
+            ConsoleMode->>User: Affiche l'état de la grille
+            alt Grille stable
+                ConsoleMode->>User: "Grille stable, simulation terminée"
+            else Grille en boucle
+                ConsoleMode->>User: "Grille en boucle, simulation terminée"
+            end
+        end
+
+        ConsoleMode->>User: "Simulation sauvegardée"
+    end
