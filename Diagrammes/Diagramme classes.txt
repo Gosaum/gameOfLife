@@ -1,125 +1,129 @@
 classDiagram
     %% Game of Life
     class GOL {
-        +startGame()
+        + run() void
     }
 
     class UnitTest {
-        +runTests()
+        + run() bool
     }
 
-    class grid {
+    class LifeAlgorithm{
+        + run() void
+    }
+    class Grid {
         <<Abstract>>
-        # Cell ***grid
-        # unsigned int n
-        # unsigned int p
-        # std::vector<Cell*> aliveCells
+        # int n
+        # int p
+        # Cell grid[n][p]
+        # Cell aliveCells[ ]
 
-        + unsigned int getN()
-        + unsigned int getP()
-        + std::vector<Cell*> getAliveCells()
-        + void updateAliveCells()
-        + void updateAliveCells(std::vector<Cell*> toggledCells)
+        + getN() int
+        + getP() int
+        + getAliveCells() Cell[ ]
+        + updateAliveCells() void
+        + updateAliveCells(Cell toggledCells[ ]) void
 
-        (virtual) + std::vector<Cell*> mooreNeighborhood(Cell* cell)
+        (virtual) + mooreNeighborhood(Cell cell) Cell[ ]*
     }
 
-    class cell {
-        <<Abstract>>
-        # bool alive
-        - unsigned int x
-        - unsigned int y
-        + bool isAlive()
-        + unsigned int getX()
-        + unsigned int getY()
-
-        (virtual) + void toggleAlive()
-        (virtual) + bool computeNextState(const unsigned int *livingNeighborsCount)
+    class StandardGrid {
+        + mooreNeighborhood(Cell cell) Cell[ ]
     }
 
-    class standardCell {
-        + void toggleAlive()
-        + bool computeNextState(const unsigned int *livingNeighborsCount)
-    }
-
-    class TorGrid {
-        + std::vector<Cell*> mooreNeighborhood(Cell* cell)
-    }
-
-    class standardGrid {
-        + std::vector<Cell*> mooreNeighborhood(Cell* cell)
-    }
-
-    class obstacleCell {
-        + void toggleAlive()
-        + bool computeNextState(const unsigned int *livingNeighborsCount)
-    }
-
-    class GUI {
-        +showInitialMenu()
-        +createCustomGrid()
-        +startSimulation()
-    }
-
-    class Console {
-        +runConsoleMode()
-    }
-
-
-
-    class ErrorHandler {
-        +showError(message: String)
-    }
-
-    class FileHandler {
-        +saveGridToFile(grid: grid, filename: String)
-        +loadGridFromFile(filename: String): grid
+    class ToroidalGrid {
+        + mooreNeighborhood(Cell cell) Cell[ ]
     }
 
     class GridFactory {
-        <<Factory>>
-        +createGrid(type: String): grid
+        +createGrid(String type, int n, int p) Grid $
+    }
+
+    class Cell {
+        <<Abstract>>
+        - bool alive
+        - int x
+        - int y
+        + isAlive() bool
+        + setAlive(bool state) void
+        + getX() int
+        + getY() int
+
+        (virtual) + toggleAlive() void *
+        (virtual) + computeNextState(int livingNeighborsCount) bool *
+    }
+
+    class StandardCell {
+        + toggleAlive() void
+        + computeNextState(int livingNeighborsCount) bool
+    }
+
+    class ObstacleCell {
+        + toggleAlive() void 
+        + computeNextState(int livingNeighborsCount) bool 
     }
 
     class CellFactory {
-        <<Factory>>
-        +createCell(type: String): cell
+        + createCell(String type, bool state, int x, int y) Cell $
     }
 
-    class gameSettings {
-        +unsigned int maxIterations
-        +bool isToroidal
-        +void setMaxIterations(unsigned int)
-        +void toggleToroidalMode()
+    class GUI {
+        + showInitialMenu() void
+        + createCustomGrid() void
+        + startSimulation() void
+    }
+
+    class Console {
+        + runConsoleMode() void
+    }
+
+    class ErrorHandler {
+        + showError(String message)
+    }
+
+    class FileHandler {
+        + saveGridToFile(Grid grid, string path)
+        + loadGridFromFile(String path) Grid
+    }
+
+    class GameSettings {
+        + int maxIterations
+        + bool isToroidal
+        + setMaxIterations(int maxIteration) void
+        + toggleToroidalMode() void
     }
 
     class Renderer {
-        +renderGrid(grid: grid)
+        +renderGrid(Grid grid) void
     }
 
-    GOL ..> UnitTest : Utilise
-    GOL --> GridFactory : Utilise
-    GOL --> CellFactory : Utilise
-    GOL --> GUI : Association
-    GOL ..> gameSettings : Dépendance
+    GOL ..> UnitTest : uses
+    GOL --> GUI
+    GOL ..> GameSettings
 
-    CellFactory --> cell : Crée
-    cell <|-- obstacleCell : Héritage
-    cell <|-- standardCell : Héritage
 
-    Renderer --> grid : Rend
+    GOL ..> GridFactory
+    GridFactory ..> Grid
+    GOL ..> LifeAlgorithm : uses
+    LifeAlgorithm ..> Grid
+    LifeAlgorithm ..> Cell
 
-    GridFactory --> grid : Crée
-    grid <|-- TorGrid : Héritage
-    grid <|-- standardGrid : Héritage
-    grid --* cell : Composition
+    Grid <|-- ToroidalGrid
+    Grid <|-- StandardGrid
+    
+    Cell --* Grid
+    CellFactory ..> Cell
+    Grid ..> CellFactory : uses
+    
+    Cell <|-- ObstacleCell
+    Cell <|-- StandardCell
 
-    Console ..> FileHandler : Utilise
+    Renderer --> Grid
+    Console ..> ErrorHandler : uses
+    Console ..> FileHandler : uses
 
     GUI --> Console
-    GUI ..> ErrorHandler : Utilise
-    GUI ..> FileHandler : Utilise
+    GUI ..> ErrorHandler : uses
+    GUI ..> FileHandler : uses
     GUI --> Renderer
-    GUI --> gameSettings
-
-    Console ..> ErrorHandler : Utilise
+    GUI --> GameSettings
