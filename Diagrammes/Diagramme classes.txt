@@ -9,8 +9,8 @@ classDiagram
     }
 
     class LifeAlgorithm{
-        + run() void $
-        + toggleCells(Cell toToggle[]) void $
+        + computeCellsToToggle() Cell[ ] $
+        + toggleCells(Cell CellsToToggle[]) void $
     }
     class Grid {
         <<Abstract>>
