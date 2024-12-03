@@ -1,25 +1,60 @@
-flowchart TD
-    A[Lancer l'application] --> C{Mode choisi}
+flowchart
 
-    C -->|Mode Console| D[Demander le chemin du fichier]
-    D --> E{Chemin valide ?}
-    E -->|Non| F[Afficher message d'erreur] --> D
-    E -->|Oui| G[Demander le nombre d'itérations]
-    G --> H[Lancer la simulation]
-    H --> I[Afficher les résultats]
-    I --> J[Afficher la raison de la fin]
-    J --> K[Créer fichier output]
-    K --> L[Attente pour fermer]
-    L --> Z
 
-    C -->|Mode GUI| M[Charger ou créer une grille]
-    M -->|Créer| N[Configurer une nouvelle grille]
-    N --> O[Sauvegarder ou lancer la simulation]
-    O -->|Sauvegarder| P[Sauvegarder la grille]
-    O -->|Lancer| Q[Lancer la simulation GUI]
-    Q --> Z
+A[Lancer le programme]
+B{Choix du mode}
 
-    M -->|Charger| R[Charger le fichier sélectionné]
-    R --> Q
-    C --> AA[Quitter]
-    AA --> Z(Fin)
+%%Mode CLI
+C[Demander le chemin du fichier]
+D{Le chemin et le fichier sont ils valides}
+E[Message d'erreur]
+F[Demander le nombre d'itération]
+G{Nombre d'itération valide}
+H[Message d'erreur]
+I[Lancer la simulation]
+J[Afficher les résultats]
+K[Afficher la raison de la fin]
+L[Création du fichier d'output]
+M[ENTREE pour fermer]
+
+%%Mode GUI
+%%Création
+N{Créer ou choisir un fichier}
+O[Configuration d'une nouvelle grille]
+P{Lancer la simulation ou Sauvegarder}
+Q[Fichier Sauvegardé]
+R{Lancer la simulation ou Quitter}
+
+%%Chargement
+S[Charger un fichier]
+T{Fichier valide}
+U[Message d'erreur]
+V[Choix des paramètres de la simulation]
+W[Lancement de la simulation]
+X[Afficher du resultat]
+Y[Afficher la raison de la fin]
+
+Z[Quitter]
+
+AA(((Fin)))
+
+
+%%CLI
+A --> B --> C --> D --> |Oui| F --> G --> |Oui| I --> J --> K --> L --> M --> AA
+D --> |Non| E --> D
+G --> |Non| H --> G
+
+
+%%GUI choisir
+N --> S --> T --> |Oui| V
+T --> |Non| U --> T
+
+
+%%GUI créer
+B --> N --> O --> P --> V --> W --> X --> Y --> AA
+P --> Q --> R --> V
+R --> AA  
+
+
+%%Quitter
+B --> Z --> AA
