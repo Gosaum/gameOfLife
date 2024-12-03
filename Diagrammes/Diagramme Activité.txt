@@ -1,8 +1,5 @@
 flowchart TD
-    A[Lancer l'application] --> UT[Exécuter les tests unitaires]
-    UT --> B{Tests réussis ?}
-    B -->|Non| UE[Afficher erreur des tests] --> Z[Fin]
-    B -->|Oui| C{Mode choisi}
+    A[Lancer l'application] --> C{Mode choisi}
 
     C -->|Mode Console| D[Demander le chemin du fichier]
     D --> E{Chemin valide ?}
@@ -24,4 +21,5 @@ flowchart TD
 
     M -->|Charger| R[Charger le fichier sélectionné]
     R --> Q
-    C -->|Quitter| Z
+    C --> AA[Quitter]
+    AA --> Z(Fin)
