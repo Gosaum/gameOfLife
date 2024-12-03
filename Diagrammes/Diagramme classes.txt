@@ -1,16 +1,16 @@
 classDiagram
     %% Game of Life
     class GOL {
-        + run() void
+        + runGOL() void
     }
 
     class UnitTest {
-        + run() bool
+        + runUnitTest() bool
     }
 
     class LifeAlgorithm{
-        + computeCellsToToggle() Cell[ ] $
-        + toggleCells(Cell CellsToToggle[]) void $
+        + computeCellsToToggle() Cell[ ]
+        + toggleCells(Cell CellsToToggle[]) void
     }
     class Grid {
         <<Abstract>>
@@ -37,7 +37,7 @@ classDiagram
     }
 
     class GridFactory {
-        +createGrid(String type, int n, int p) Grid $
+        +createGrid(String type, int n, int p) Grid
     }
 
     class Cell {
@@ -65,16 +65,16 @@ classDiagram
     }
 
     class CellFactory {
-        + createCell(String type, bool state, int x, int y) Cell $
+        + createCell(String type, bool state, int x, int y) Cell
     }
 
-    class GUI {
+    class UI {
         + showInitialMenu() void
         + createCustomGrid() void
         + startSimulation() void
     }
 
-    class Console {
+    class CLI {
         + runConsoleMode() void
     }
 
@@ -94,12 +94,12 @@ classDiagram
         + toggleToroidalMode() void
     }
 
-    class Renderer {
+    class GUI {
         +renderGrid(Grid grid) void
     }
 
     GOL ..> UnitTest : uses
-    GOL --> GUI
+    GOL --> UI
     GOL ..> GameSettings
 
 
@@ -119,12 +119,12 @@ classDiagram
     Cell <|-- ObstacleCell
     Cell <|-- StandardCell
 
-    Renderer --> Grid
-    Console ..> ErrorHandler : uses
-    Console ..> FileHandler : uses
+    GUI --> Grid
+    CLI ..> ErrorHandler : uses
+    CLI ..> FileHandler : uses
 
-    GUI --> Console
-    GUI ..> ErrorHandler : uses
-    GUI ..> FileHandler : uses
-    GUI --> Renderer
-    GUI --> GameSettings
+    UI --> CLI
+    UI ..> ErrorHandler : uses
+    UI ..> FileHandler : uses
+    UI --> GUI
+    UI --> GameSettings
