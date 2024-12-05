@@ -24,6 +24,7 @@ class Grid{
     int getN() const;
     int getP() const;
     vector<Cell*> getAliveCells() const;
+    string getGridSignature() const;
 
     void updateAliveCells();
     void updateAliveCells(const vector<Cell*>& toggledCells);

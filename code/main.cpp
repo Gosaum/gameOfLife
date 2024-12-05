@@ -51,7 +51,7 @@ int main(){
     LifeAlgorithm::iterateGrid(foo);
     cout << "iteration 3" << endl;
     printGrid(foo);
-    cout << "done" << endl;
+    cout << foo.getGridSignature() << endl;
 
     return 0;
     }

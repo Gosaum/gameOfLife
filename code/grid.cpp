@@ -81,6 +81,15 @@ vector<Cell*> Grid::getAliveCells() const {
     return aliveCells;
 }
 
+string Grid::getGridSignature() const {
+
+    string signature = to_string(n) + to_string(p);
+    for(Cell* aliveCell : aliveCells){
+        signature += to_string((*aliveCell).getX()) + to_string((*aliveCell).getY());
+    }
+    return signature;
+}
+
 void Grid::updateAliveCells(){
     
     /*
