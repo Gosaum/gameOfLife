@@ -1,6 +1,6 @@
 #include "grid.hpp"
-#define DEFAULT_N 25
-#define DEFAULT_P 25
+#define DEFAULT_N 10
+#define DEFAULT_P 10
 
 #include <iostream>
 #include <unordered_set>
