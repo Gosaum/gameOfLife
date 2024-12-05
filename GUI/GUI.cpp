@@ -94,12 +94,12 @@ void GUI::renderConfigMenu() {
     iterationsBox.setFillColor(Color::White);
     iterationsBox.setOutlineColor(Color::Black);
     iterationsBox.setOutlineThickness(2.f);
-    iterationsBox.setPosition(300.f, 100.f);
+    iterationsBox.setPosition(400.f, 100.f);
 
     string iterationsInput = to_string(settings.getMaxIterations());
     Text iterationsValue(iterationsInput, font, 20);
     iterationsValue.setFillColor(Color::Black);
-    iterationsValue.setPosition(310.f, 105.f);
+    iterationsValue.setPosition(iterationsBox.getPosition().x + iterationsBox.getSize().x / 3 + 0.f, 105.f);
 
     Text toroidalText("Mode toroidal:", font, 20);
     toroidalText.setFillColor(Color::Black);
@@ -109,11 +109,11 @@ void GUI::renderConfigMenu() {
     toroidalButton.setFillColor(settings.getGridType() == "Toroidal" ? Color::Green : Color::Red);
     toroidalButton.setOutlineColor(Color::Black);
     toroidalButton.setOutlineThickness(2.f);
-    toroidalButton.setPosition(300.f, 200.f);
+    toroidalButton.setPosition(400.f, 200.f);
 
     Text toroidalState(settings.getGridType() == "Toroidal" ? "ON" : "OFF", font, 20);
     toroidalState.setFillColor(Color::Black);
-    toroidalState.setPosition(350.f, 205.f);
+    toroidalState.setPosition(toroidalButton.getPosition().x + toroidalButton.getSize().x / 3 + 0.f, 205.f);
 
     RectangleShape confirmButton(Vector2f(150.f, 50.f));
     confirmButton.setFillColor(Color::White);
@@ -133,6 +133,26 @@ void GUI::renderConfigMenu() {
             if (event.type == Event::Closed) {
                 window.close();
                 return;
+            }
+
+            if (event.type == sf::Event::KeyPressed) {
+                switch (event.key.code) {
+                case sf::Keyboard::Enter:
+                    try {
+                        int iterations = stoi(iterationsInput);
+                        if (iterations < 1 || iterations > 10000) {
+                            throw invalid_argument("Iterations must be between 1 and 10000.");
+                        }
+                        settings.setMaxIterations(iterations);
+                        return;
+                    }
+                    catch (...) {
+                        ErrorHandler::showError("Entrez un nombre valide entre 1 et 10000.", &window);
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
 
             if (event.type == Event::MouseButtonPressed) {
@@ -258,12 +278,12 @@ void GUI::renderCustomGrid() {
     rowsBox.setFillColor(Color::White);
     rowsBox.setOutlineColor(Color::Black);
     rowsBox.setOutlineThickness(2.f);
-    rowsBox.setPosition(200.f, 100.f);
+    rowsBox.setPosition(250.f, 100.f);
 
     string rowsInput = to_string(gridRows);
     Text rowsValue(rowsInput, font, 18);
     rowsValue.setFillColor(Color::Black);
-    rowsValue.setPosition(210.f, 105.f);
+    rowsValue.setPosition(rowsBox.getPosition().x + rowsBox.getSize().x / 3, 105.f);
 
     Text colsText("Nombre de colonnes:", font, 20);
     colsText.setFillColor(Color::Black);
@@ -273,12 +293,12 @@ void GUI::renderCustomGrid() {
     colsBox.setFillColor(Color::White);
     colsBox.setOutlineColor(Color::Black);
     colsBox.setOutlineThickness(2.f);
-    colsBox.setPosition(200.f, 150.f);
+    colsBox.setPosition(250.f, 150.f);
 
     string colsInput = to_string(gridCols);
     Text colsValue(colsInput, font, 18);
     colsValue.setFillColor(Color::Black);
-    colsValue.setPosition(210.f, 155.f);
+    colsValue.setPosition(colsBox.getPosition().x + colsBox.getSize().x / 3, 155.f);
 
     RectangleShape saveButton(Vector2f(200.f, 50.f));
     saveButton.setFillColor(Color::White);
@@ -477,85 +497,126 @@ void GUI::renderCustomGrid() {
 }
 
 void GUI::renderGrid(Grid& grid) {
-    window.requestFocus();
-    const int expandedWindowWidth = 1000;
-    const int expandedWindowHeight = 800;
+    const int windowWidth = 1000;
+    const int windowHeight = 800;
 
-    int gridRows = grid.getN();
-    int gridCols = grid.getP();
+    RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game of Life");
+    Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        throw std::runtime_error("Erreur: Impossible de charger la police.");
+    }
 
-    float cellSize = min((expandedWindowWidth - 200.f) / gridCols, (expandedWindowHeight - 400.f) / gridRows);
+    bool isPaused = true;
+    bool simulationEnded = false;
+    float simulationSpeed = 1.0f;
+    int iteration = 0;
+    int selectedState = 1; // 1 = Vivant, 2 = Mort, 3 = Obstacle
+    const int maxIterations = 10000;
+
+    const int gridRows = grid.getN();
+    const int gridCols = grid.getP();
+
+    float cellSize = std::min((windowWidth - 200.f) / gridCols, (windowHeight - 300.f) / gridRows);
     float gridWidth = cellSize * gridCols;
     float gridHeight = cellSize * gridRows;
-    float offsetX = (expandedWindowWidth - gridWidth) / 2;
-    float offsetY = 150;
+    float offsetX = (windowWidth - gridWidth) / 2;
+    float offsetY = 100;
 
-    window.setSize(Vector2u(expandedWindowWidth, expandedWindowHeight));
-    window.setView(View(FloatRect(0, 0, expandedWindowWidth, expandedWindowHeight)));
-
-    Text pauseText("Simulation en pause", font, 20);
-    pauseText.setFillColor(Color::Red);
-    pauseText.setPosition(10.f, 10.f);
-
-    Text iterationText("Iteration : 0", font, 20);
-    iterationText.setFillColor(Color::Black);
-    iterationText.setPosition(10.f, 40.f);
-
-    Text endReasonText("", font, 20);
-    endReasonText.setFillColor(Color::Black);
-    endReasonText.setPosition(10.f, 70.f);
-
-    Text currentCellType("Type cellule : Vivant", font, 20);
-    currentCellType.setFillColor(Color::Black);
-    currentCellType.setPosition(10.f, 100.f);
-
-    RectangleShape pauseButton(Vector2f(150.f, 40.f));
-    pauseButton.setFillColor(Color::White);
+    RectangleShape pauseButton(Vector2f(50.f, 50.f));
+    pauseButton.setFillColor(Color::Red);
     pauseButton.setOutlineColor(Color::Black);
     pauseButton.setOutlineThickness(2.f);
-    pauseButton.setPosition(expandedWindowWidth - 200.f, 10.f);
+    pauseButton.setPosition(offsetX + gridWidth + 20.f, offsetY);
 
-    Text pauseButtonText("Pause", font, 20);
-    pauseButtonText.setFillColor(Color::Black);
-    pauseButtonText.setPosition(pauseButton.getPosition().x + 10.f, pauseButton.getPosition().y + 5.f);
+    Text speedText("Temps (s):", font, 18);
+    speedText.setFillColor(Color::Black);
+    speedText.setPosition(10.f, windowHeight - 130.f);
 
-    RectangleShape saveButton(Vector2f(150.f, 40.f));
+    RectangleShape speedBox(Vector2f(100.f, 30.f));
+    speedBox.setFillColor(Color::White);
+    speedBox.setOutlineColor(Color::Black);
+    speedBox.setOutlineThickness(2.f);
+    speedBox.setPosition(150.f, windowHeight - 135.f);
+
+    Text speedValueText(std::to_string(simulationSpeed), font, 18);
+    speedValueText.setFillColor(Color::Black);
+    speedValueText.setPosition(155.f, windowHeight - 130.f);
+
+    RectangleShape speedUpButton(Vector2f(30.f, 30.f));
+    speedUpButton.setFillColor(Color::White);
+    speedUpButton.setOutlineColor(Color::Black);
+    speedUpButton.setOutlineThickness(2.f);
+    speedUpButton.setPosition(270.f, windowHeight - 135.f);
+
+    Text speedUpText("+", font, 18);
+    speedUpText.setFillColor(Color::Black);
+    speedUpText.setPosition(280.f, windowHeight - 130.f);
+
+    RectangleShape speedDownButton(Vector2f(30.f, 30.f));
+    speedDownButton.setFillColor(Color::White);
+    speedDownButton.setOutlineColor(Color::Black);
+    speedDownButton.setOutlineThickness(2.f);
+    speedDownButton.setPosition(310.f, windowHeight - 135.f);
+
+    Text speedDownText("-", font, 18);
+    speedDownText.setFillColor(Color::Black);
+    speedDownText.setPosition(320.f, windowHeight - 130.f);
+
+    Text iterationText("Iteration : 0", font, 18);
+    iterationText.setFillColor(Color::Black);
+    iterationText.setPosition(10.f, 60.f);
+
+    Text endReasonText("", font, 18);
+    endReasonText.setFillColor(Color::Red);
+    endReasonText.setPosition(windowWidth / 2 - 130.f, windowHeight - 150.f);
+
+    RectangleShape saveButton(Vector2f(200.f, 50.f));
     saveButton.setFillColor(Color::White);
     saveButton.setOutlineColor(Color::Black);
-    saveButton.setOutlineThickness(2.f);
-    saveButton.setPosition(expandedWindowWidth - 200.f, 60.f);
+    saveButton.setOutlineThickness(1.f);
+    saveButton.setPosition(windowWidth / 2 - saveButton.getSize().x / 3, windowHeight - 50.f);
 
-    Text saveButtonText("Sauvegarder", font, 20);
+    Text saveButtonText("Sauvegarder", font, 18);
     saveButtonText.setFillColor(Color::Black);
-    saveButtonText.setPosition(saveButton.getPosition().x + 10.f, saveButton.getPosition().y + 5.f);
+    saveButtonText.setPosition(saveButton.getPosition().x + 25.f, saveButton.getPosition().y + 10.f);
 
-    RectangleShape cellTypeButton(Vector2f(150.f, 40.f));
-    cellTypeButton.setFillColor(Color::White);
-    cellTypeButton.setOutlineColor(Color::Black);
-    cellTypeButton.setOutlineThickness(2.f);
-    cellTypeButton.setPosition(expandedWindowWidth - 200.f, 110.f);
+    RectangleShape stateButton1(Vector2f(150.f, 30.f));
+    RectangleShape stateButton2(Vector2f(150.f, 30.f));
+    RectangleShape stateButton3(Vector2f(150.f, 30.f));
 
-    Text cellTypeButtonText("Changer Type", font, 20);
-    cellTypeButtonText.setFillColor(Color::Black);
-    cellTypeButtonText.setPosition(cellTypeButton.getPosition().x + 10.f, cellTypeButton.getPosition().y + 5.f);
+    stateButton1.setPosition(windowWidth / 2 - 250.f, 50.f);
+    stateButton2.setPosition(windowWidth / 2 - 75.f, 50.f);
+    stateButton3.setPosition(windowWidth / 2 + 100.f, 50.f);
 
-    Text speedText("Vitesse (s):", font, 20);
-    speedText.setFillColor(Color::Black);
-    speedText.setPosition(10.f, expandedWindowHeight - 80.f);
+    Text stateButtonText1("Vivant", font, 16);
+    Text stateButtonText2("Mort", font, 16);
+    Text stateButtonText3("Obstacle", font, 16);
 
-    RectangleShape slider(Vector2f(200.f, 10.f));
-    slider.setFillColor(Color::Black);
-    slider.setPosition(150.f, expandedWindowHeight - 70.f);
+    stateButtonText1.setPosition(stateButton1.getPosition().x + 10.f, stateButton1.getPosition().y + 5.f);
+    stateButtonText2.setPosition(stateButton2.getPosition().x + 10.f, stateButton2.getPosition().y + 5.f);
+    stateButtonText3.setPosition(stateButton3.getPosition().x + 10.f, stateButton3.getPosition().y + 5.f);
 
-    CircleShape sliderKnob(10.f);
-    sliderKnob.setFillColor(Color::Red);
-    sliderKnob.setPosition(slider.getPosition().x + 190.f, slider.getPosition().y - 5.f);
+    Text selectedStateText("Selection : Vivant", font, 18);
+    selectedStateText.setFillColor(Color::Black);
+    selectedStateText.setPosition(10.f, 20.f);
 
-    float sliderValue = 10.f;
-    bool isPaused = true;
-    bool draggingSlider = false;
-    int iteration = 0;
-    int selectedCellType = 1;
+    auto updateStateButtons = [&]() {
+        stateButton1.setFillColor(selectedState == 1 ? Color::Green : Color(200, 200, 200));
+        stateButton2.setFillColor(selectedState == 2 ? Color::Red : Color(200, 200, 200));
+        stateButton3.setFillColor(selectedState == 3 ? Color::Blue : Color(200, 200, 200));
+        if (selectedState == 1)
+            selectedStateText.setString("Selection : Vivant");
+        else if (selectedState == 2)
+            selectedStateText.setString("Selection : Mort");
+        else
+            selectedStateText.setString("Selection : Obstacle");
+        };
+
+    updateStateButtons();
+
+    auto lastUpdateTime = chrono::steady_clock::now();
+    bool isDragging = false;
+    vector<pair<int, vector<vector<string>>>> iterationData;
 
     while (window.isOpen()) {
         Event event;
@@ -565,55 +626,136 @@ void GUI::renderGrid(Grid& grid) {
                 return;
             }
 
-            if (event.type == Event::MouseButtonPressed) {
-                if (pauseButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                    isPaused = !isPaused;
+            if (saveButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                string filePath = FileHandler::saveFileDialog();
+                if (!filePath.empty()) {
+                    FileHandler::saveSimulationHistory(filePath, iterationData);
                 }
+            }
 
-                if (saveButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+            if (event.type == Event::KeyPressed) {
+                if (event.key.code == Keyboard::Space) {
+                    isPaused = !isPaused;
+                    pauseButton.setFillColor(isPaused ? Color::Red : Color(200, 200, 200));
+                }
+                else if (event.key.code == Keyboard::Up) {
+                    simulationSpeed = std::max(simulationSpeed - 0.1f, 0.01f);
+                    speedValueText.setString(std::to_string(simulationSpeed).substr(0, 4));
+                }
+                else if (event.key.code == Keyboard::Down) {
+                    simulationSpeed = std::min(simulationSpeed + 0.1f, 10.0f);
+                    speedValueText.setString(std::to_string(simulationSpeed).substr(0, 4));
+                }
+                else if (event.key.code == Keyboard::S) {
                     string filePath = FileHandler::saveFileDialog();
                     if (!filePath.empty()) {
-                        FileHandler::saveGridToFile(grid, filePath);
+                        FileHandler::saveSimulationHistory(filePath, iterationData);
                     }
                 }
-
-                if (cellTypeButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                    selectedCellType = (selectedCellType % 3) + 1;
-                    if (selectedCellType == 1) currentCellType.setString("Type cellule : Vivant");
-                    if (selectedCellType == 2) currentCellType.setString("Type cellule : Mort");
-                    if (selectedCellType == 3) currentCellType.setString("Type cellule : Obstacle");
+                else if (event.key.code == Keyboard::Num1) {
+                    selectedState = 1;
+                    updateStateButtons();
                 }
-
-                if (sliderKnob.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                    draggingSlider = true;
+                else if (event.key.code == Keyboard::Num2) {
+                    selectedState = 2;
+                    updateStateButtons();
+                }
+                else if (event.key.code == Keyboard::Num3) {
+                    selectedState = 3;
+                    updateStateButtons();
                 }
             }
 
-            if (event.type == Event::MouseButtonReleased) {
-                draggingSlider = false;
+            if (event.type == Event::MouseButtonPressed) {
+                if (speedUpButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    simulationSpeed = std::min(simulationSpeed + 0.1f, 10.0f);
+                    speedValueText.setString(std::to_string(simulationSpeed).substr(0, 4));
+                }
+                else if (speedDownButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    simulationSpeed = std::max(simulationSpeed - 0.1f, 0.01f);
+                    speedValueText.setString(std::to_string(simulationSpeed).substr(0, 4));
+                }
+                else if (stateButton1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 1;
+                    updateStateButtons();
+                }
+                else if (stateButton2.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 2;
+                    updateStateButtons();
+                }
+                else if (stateButton3.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 3;
+                    updateStateButtons();
+                }
+                else if (event.mouseButton.button == Mouse::Left) {
+                    int x = (event.mouseButton.y - offsetY) / cellSize;
+                    int y = (event.mouseButton.x - offsetX) / cellSize;
+
+                    if (x >= 0 && y >= 0 && x < gridRows && y < gridCols) {
+                        grid.setCell(x, y, selectedState == 1 ? "Standard" : (selectedState == 3 ? "Obstacle" : "Standard"));
+                        grid.getCell(x, y)->setAlive(selectedState == 1);
+                        isDragging = true;
+                    }
+                }
             }
 
-            if (event.type == Event::MouseMoved && draggingSlider) {
-                float x = event.mouseMove.x;
-                if (x >= slider.getPosition().x && x <= slider.getPosition().x + slider.getSize().x) {
-                    sliderKnob.setPosition(x - sliderKnob.getRadius(), sliderKnob.getPosition().y);
-                    sliderValue = 10.f - ((x - slider.getPosition().x) / slider.getSize().x * 10.f);
+            if (event.type == Event::MouseMoved && isDragging) {
+                int x = (event.mouseMove.y - offsetY) / cellSize;
+                int y = (event.mouseMove.x - offsetX) / cellSize;
+
+                if (x >= 0 && y >= 0 && x < gridRows && y < gridCols) {
+                    grid.setCell(x, y, selectedState == 1 ? "Standard" : (selectedState == 3 ? "Obstacle" : "Standard"));
+                    grid.getCell(x, y)->setAlive(selectedState == 1);
                 }
+            }
+
+            if (event.type == Event::MouseButtonReleased && isDragging) {
+                isDragging = false;
             }
         }
 
-        if (!isPaused) {
-            ++iteration;
-            auto toggledCells = LifeAlgorithm(&grid).computeCellsToToggle();
-            if (toggledCells.empty()) {
-                isPaused = true;
-                endReasonText.setString("Fin : Stabilisee");
-            }
-            else {
-                LifeAlgorithm(&grid).toggleCells(toggledCells);
-            }
+        if (!isPaused && !simulationEnded) {
+            auto currentTime = chrono::steady_clock::now();
+            auto elapsedTime = chrono::duration_cast<chrono::milliseconds>(currentTime - lastUpdateTime).count();
 
-            iterationText.setString("Iteration : " + to_string(iteration));
+            if (elapsedTime >= simulationSpeed * 1000) {
+                ++iteration;
+                iterationText.setString("Iteration : " + to_string(iteration));
+
+                if (iteration >= maxIterations) {
+                    simulationEnded = true;
+                    isPaused = true;
+                    endReasonText.setString("Simulation terminee : limite d'iterations atteinte.");
+                }
+                else {
+                    auto toggledCells = LifeAlgorithm(&grid).computeCellsToToggle();
+                    if (toggledCells.empty()) {
+                        simulationEnded = true;
+                        endReasonText.setString("Simulation terminee : grille stable.");
+                    }
+                    else {
+                        LifeAlgorithm(&grid).toggleCells(toggledCells);
+                    }
+                }
+                lastUpdateTime = currentTime;
+
+                vector<vector<string>> currentGridState(gridRows, vector<string>(gridCols));
+                for (int i = 0; i < gridRows; ++i) {
+                    for (int j = 0; j < gridCols; ++j) {
+                        Cell* cell = grid.getCell(i, j);
+                        if (dynamic_cast<ObstacleCell*>(cell)) {
+                            currentGridState[i][j] = "O";
+                        }
+                        else if (cell->isAlive()) {
+                            currentGridState[i][j] = "1";
+                        }
+                        else {
+                            currentGridState[i][j] = "0";
+                        }
+                    }
+                }
+                iterationData.emplace_back(iteration, currentGridState);
+            }
         }
 
         window.clear(Color::White);
@@ -640,25 +782,26 @@ void GUI::renderGrid(Grid& grid) {
             }
         }
 
-        if (isPaused) {
-            window.draw(pauseText);
-        }
-
+        window.draw(pauseButton);
+        window.draw(speedText);
+        window.draw(speedBox);
+        window.draw(speedValueText);
+        window.draw(speedUpButton);
+        window.draw(speedUpText);
+        window.draw(speedDownButton);
+        window.draw(speedDownText);
         window.draw(iterationText);
         window.draw(endReasonText);
-        window.draw(currentCellType);
-        window.draw(pauseButton);
-        window.draw(pauseButtonText);
         window.draw(saveButton);
         window.draw(saveButtonText);
-        window.draw(cellTypeButton);
-        window.draw(cellTypeButtonText);
-        window.draw(speedText);
-        window.draw(slider);
-        window.draw(sliderKnob);
+        window.draw(stateButton1);
+        window.draw(stateButtonText1);
+        window.draw(stateButton2);
+        window.draw(stateButtonText2);
+        window.draw(stateButton3);
+        window.draw(stateButtonText3);
+        window.draw(selectedStateText);
 
         window.display();
-
-        sf::sleep(sf::seconds(sliderValue));
     }
 }
