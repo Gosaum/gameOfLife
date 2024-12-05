@@ -5,6 +5,6 @@
 class LifeAlgorithm{
     
     public :
-    static void iterateGrid(Grid grid);
+    static void iterateGrid(Grid& grid);
 
 };

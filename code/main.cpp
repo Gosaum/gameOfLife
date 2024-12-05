@@ -3,9 +3,11 @@ using namespace std;
 
 #include "lifealgorithm.hpp"
 #include "standardgrid.hpp"
+#include "toroidalgrid.hpp"
 
 //for debugging
 void printCells(vector<Cell*> vect) {
+     cout << "aliveCells" << endl;
     for (Cell* e : vect){
         cout << (*e).isAlive() << "(" << (*e).getX() << "," <<  (*e).getY() << ")" << endl;
     }
@@ -31,8 +33,12 @@ int main(){
     foo.updateAliveCells(foo.getAliveCells());
     */
     /*BATTERIE2*/
-    vector<string> data = {"0","1","0","0","d","1","0","0","0","1","0","0","0","0","0","O"};
-    StandardGrid foo(4,4,data);
+    vector<string> data = {
+        "0","0","0","0",
+        "1","0","0","0",
+        "1","0","0","0",
+        "1","0","0","0"};
+    ToroidalGrid foo(4,4,data);
     foo.updateAliveCells();
     cout << "initialisation" << endl;
     printGrid(foo);

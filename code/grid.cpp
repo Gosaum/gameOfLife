@@ -1,5 +1,4 @@
 #include "grid.hpp"
-
 #define DEFAULT_N 25
 #define DEFAULT_P 25
 
@@ -87,7 +86,7 @@ void Grid::updateAliveCells(){
     /*
     met à jour l'attribut aliveCells en recherchant linéairement toutes les cellules vivantes dans la grille
     */
-
+    aliveCells.clear();
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < p; j++) {
             if ((*grid[i][j]).isAlive()==true){ //si la cellule est vivante
@@ -98,14 +97,14 @@ void Grid::updateAliveCells(){
 }
 
 void Grid::updateAliveCells(const vector<Cell*>& toggledCells){
-    
+
     /*
     met à jour l'attribut aliveCells à partir d'un vecteur de pointeurs vers des cellules qui viennent de changer d'état
     ---
     supprime dans un premier temps toutes les cellules mortes de aliveCells
     ajoute ensuite chaque cellule vivante du vecteur en paramètre à aliveCells
     */
-
+    
     vector<Cell*> updatedAliveCells; //vecteur temporaire pour éviter des problèmes d'indexation
     for (Cell* cell : aliveCells) {
         if ((*cell).isAlive()) { //(une cellule présente dans aliveCells n'est pas forcément vivante après que la grille à changé d'où la vérification)
@@ -147,10 +146,10 @@ vector<Cell*> Grid::mooreNeighborhood(const Cell* cell) const {
     int maxX = n-1; //-1 parce que l'indexation commence à 0
     int maxY = p-1;
     //pour éviter de sortir de la grille on définit les limites
-    int topLimit  = ((x-1) > 0) ? x-1 : 0;
-    int bottomLimit = ((x+1) < maxX ) ? x+1 : maxX ; 
-    int leftLimit  = ((y-1) > 0) ? y-1 : 0;
-    int rightLimit = ((y+1) < maxY ) ? y+1 : maxY;
+    int topLimit  = ((x-1) >= 0) ? x-1 : 0;
+    int bottomLimit = ((x+1) <= maxX ) ? x+1 : maxX ; 
+    int leftLimit  = ((y-1) >= 0) ? y-1 : 0;
+    int rightLimit = ((y+1) <= maxY ) ? y+1 : maxY;
 
     for (int i = topLimit; i <= bottomLimit; ++i) { //pour chaque ligne de x-1 à x+1 sauf limite
         for (int j = leftLimit; j <= rightLimit; ++j) { //pour chaque colonne de y-1 à y+1 sauf limite
@@ -162,6 +161,8 @@ vector<Cell*> Grid::mooreNeighborhood(const Cell* cell) const {
 
     return neighbors;
 }
+
+
 
 vector<Cell*> Grid::computeCellsToToggle() const {
     
@@ -178,7 +179,6 @@ vector<Cell*> Grid::computeCellsToToggle() const {
     unordered_set <Cell*> deadNeighbors; //un set désordonné pour éviter les doublons
 
     for (Cell* aliveCell : aliveCells) {
-
         int aliveNeighborCount = 0;
         vector <Cell*> neighbors = mooreNeighborhood(aliveCell);
         for (Cell* neighbor : neighbors){
