@@ -12,6 +12,7 @@ public:
     static std::string saveFileDialog();
     static std::unique_ptr<Grid> loadGridFromFile(const std::string& path, const std::string& type);
     static void saveGridToFile(const Grid& grid, const std::string& path);
+    static void saveSimulationHistory(const string& path,const vector<pair<int, vector<vector<string>>>>& simulationHistory);
 };
 
 #endif
