@@ -39,19 +39,23 @@ int main(){
         "1","0","0","0",
         "1","0","0","0"};
     ToroidalGrid foo(4,4,data);
+    LifeAlgorithm fooUtils(foo);
     foo.updateAliveCells();
     cout << "initialisation" << endl;
     printGrid(foo);
-    LifeAlgorithm::iterateGrid(foo);
+    cout << fooUtils.isGridStable(1) << endl;
+    fooUtils.iterateGrid();
     cout << "iteration 1" << endl;
     printGrid(foo);
-    LifeAlgorithm::iterateGrid(foo);
+    cout << fooUtils.isGridStable(1) << endl;
+    fooUtils.iterateGrid();
     cout << "iteration 2" << endl;
     printGrid(foo);
-    LifeAlgorithm::iterateGrid(foo);
+    fooUtils.iterateGrid();
+    cout << fooUtils.isGridStable(1) << endl;
     cout << "iteration 3" << endl;
     printGrid(foo);
-    cout << foo.getGridSignature() << endl;
+    cout << fooUtils.isGridStable(1) << endl;
 
     return 0;
     }

@@ -4,7 +4,16 @@
 
 class LifeAlgorithm{
     
-    public :
-    static void iterateGrid(Grid& grid);
+    private :
 
+    Grid& grid;
+    vector<string> signatureHistory;
+
+    public :
+
+    LifeAlgorithm(Grid& grid);
+
+    void iterateGrid();
+    bool isGridStable();
+    bool isGridStable(int Tmax);
 };
