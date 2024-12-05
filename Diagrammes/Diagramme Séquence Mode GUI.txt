@@ -1,0 +1,69 @@
+sequenceDiagram
+    participant User
+    participant GUI
+    participant Grid
+    participant FileDialog
+    participant ErrorHandler
+
+    GUI->>User: Affiche le menu principal
+    alt Charger un fichier
+        User->>GUI: Choisit "Charger un fichier"
+        GUI->>FileDialog: Ouvre le dialogue de fichier
+        alt Aucun fichier sélectionné
+            GUI->>ErrorHandler: Affiche une erreur
+            ErrorHandler->>User: "Erreur : aucun fichier sélectionné"
+        else Fichier valide
+            FileDialog->>GUI: Retourne le fichier sélectionné
+            GUI->>Grid: Charge la grille
+            alt Fichier invalide
+                GUI->>ErrorHandler: Affiche une erreur
+                ErrorHandler->>User: "Erreur : fichier invalide"
+            else Grille valide
+                GUI->>User: "Grille chargée"
+            end
+        end
+    else Créer une grille
+        User->>GUI: Choisit "Créer une grille"
+        GUI->>User: Demande les dimensions
+        User->>GUI: Fournit les dimensions
+        GUI->>Grid: Crée une nouvelle grille
+    end
+
+    GUI->>User: Demande le nombre d'itérations
+    User->>GUI: Fournit un nombre
+    GUI->>User: Affiche l'option torique
+    User->>GUI: Active ou désactive l'option
+
+    loop Simulation
+        GUI->>Grid: Met à jour la grille
+        GUI->>User: Affiche l'état de la grille
+        alt Pause
+            User->>GUI: Met en pause
+            GUI->>User: "Simulation en pause"
+            alt Modifier la grille
+                User->>GUI: Change l'état d'une cellule
+                GUI->>Grid: Met à jour la cellule
+            end
+        else Simulation active
+            GUI->>User: Modification non autorisée
+        end
+        alt Modifier la vitesse
+            User->>GUI: Fournit une nouvelle vitesse
+            GUI->>User: Affiche la nouvelle vitesse
+        end
+        alt Sauvegarder
+            User->>GUI: Demande de sauvegarder
+            GUI->>FileDialog: Ouvre le dialogue de sauvegarde
+            alt Aucun fichier sélectionné
+                GUI->>ErrorHandler: Affiche une erreur
+                ErrorHandler->>User: "Erreur : aucun fichier sélectionné"
+            else Fichier sauvegardé
+                FileDialog->>GUI: Retourne le chemin de sauvegarde
+                GUI->>Grid: Sauvegarde la grille
+                GUI->>User: "Grille sauvegardée"
+            end
+        end
+        alt Simulation terminée
+            GUI->>User: "Simulation terminée"
+        end
+    end

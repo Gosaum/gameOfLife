@@ -1,0 +1,127 @@
+classDiagram
+class LifeAlgorithm {
+    +computeCellsToToggle() : Cell[ ]
+    +toggleCells(Cell CellsToToggle[]) : void
+}
+
+class GOL {
+     +runGOL() : void
+}
+
+class UnitTest {
+     +runUnitTest() : bool
+}
+
+class Grid {
+    <<Abstract>>
+    # int n
+    # int p
+    # Cell grid[n][p]
+    # Cell aliveCells[ ]
+    +getN() : int
+    +getP() : int
+    +getAliveCells() : Cell[ ]
+    +updateAliveCells() : void
+    +updateAliveCells(Cell toggledCells[ ]) : void
+    (virtual) +mooreNeighborhood(Cell cell) : Cell[ ]
+}
+
+class StandardGrid {
+    +mooreNeighborhood(Cell cell) : Cell[ ]
+}
+
+class ToroidalGrid {
+    +mooreNeighborhood(Cell cell) : Cell[ ]
+}
+
+class GridFactory {
+    +createGrid(String type, int n, int p) : Grid
+    +createGrid(String type, Cell grid[], int n, int p) : Grid
+}
+
+class Cell {
+    <<Abstract>>
+    -bool alive
+    -int x
+    -int y
+    +isAlive() : bool
+    +setAlive(bool state) : void
+    +getX() : int
+    +getY() : int
+    (virtual) +toggleAlive() : void
+    (virtual) +computeNextState(int livingNeighborsCount) : bool
+}
+
+class StandardCell {
+    +toggleAlive() : void
+    +computeNextState(int livingNeighborsCount) : bool
+}
+
+class ObstacleCell {
+    +toggleAlive() : void
+    +computeNextState(int livingNeighborsCount) : bool
+}
+
+class CellFactory {
+    +createCell(String type, int x, int y) : Cell
+}
+
+class UI {
+    +showInitialMenu() : void
+    +createCustomGrid() : void
+    +runSimulation() : void
+}
+
+class CLI {
+    +runConsoleMode() : void
+}
+
+class ErrorHandler {
+    +showError(String message)
+}
+
+class FileHandler {
+    +saveGridToFile(Grid grid, string path)
+    +loadGridFromFile(String path) : Grid
+}
+
+class GameSettings {
+    +int maxIterations
+    +string gridType
+    +getMaxIterations() : int
+    +setMaxIterations(int maxIteration) : void
+    +get gridType() : string
+    +setGridType(string type) : void
+}
+
+class GUI {
+    +runGUI() : void
+    +renderBegin() : void
+    +renderConfigMenu() : void
+    +renderCustomGrid() : void
+    +renderGrid(Grid grid) : void
+}
+
+GOL ..> UnitTest : uses
+GOL --> UI
+GOL ..> GameSettings
+GOL ..> GridFactory
+GridFactory ..> Grid
+GOL ..> LifeAlgorithm : uses
+LifeAlgorithm ..> Grid
+LifeAlgorithm ..> Cell
+Grid <|-- ToroidalGrid
+Grid <|-- StandardGrid
+Cell --* Grid
+CellFactory ..> Cell
+Grid ..> CellFactory : uses
+Cell <|-- ObstacleCell
+Cell <|-- StandardCell
+GUI --> Grid
+CLI ..> ErrorHandler : uses
+CLI ..> FileHandler : uses
+UI --> CLI
+UI ..> ErrorHandler : uses
+UI ..> FileHandler : uses
+UI --> GUI
+UI --> GameSettings
