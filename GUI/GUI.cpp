@@ -197,149 +197,205 @@ void GUI::renderConfigMenu() {
 
 void GUI::renderCustomGrid() {
     const int expandedWindowWidth = 1000;
-    const int expandedWindowHeight = 700;
+    const int expandedWindowHeight = 800;
 
-    window.setSize(sf::Vector2u(expandedWindowWidth, expandedWindowHeight));
-    window.setView(sf::View(sf::FloatRect(0, 0, expandedWindowWidth, expandedWindowHeight)));
+    window.setSize(Vector2u(expandedWindowWidth, expandedWindowHeight));
+    window.setView(View(FloatRect(0, 0, expandedWindowWidth, expandedWindowHeight)));
 
-    const int gridRows = settings.getGridType() == "Toroidal" ? 20 : 20;
-    const int gridCols = 20;
+    int gridRows = 20;
+    int gridCols = 20;
+    grid = GridFactory::createGrid(settings.getGridType(), gridRows, gridCols);
 
-    auto grid = GridFactory::createGrid(settings.getGridType(), gridRows, gridCols);
-
-    const float cellSize = std::min((expandedWindowWidth - 200.f) / gridCols, (expandedWindowHeight - 300.f) / gridRows);
-    const float offsetX = (expandedWindowWidth - gridCols * cellSize) / 2;
-    const float offsetY = 100;
+    float cellSize = min((expandedWindowWidth - 200.f) / gridCols, (expandedWindowHeight - 300.f) / gridRows);
+    float gridWidth = cellSize * gridCols;
+    float gridHeight = cellSize * gridRows;
+    float offsetX = (expandedWindowWidth - gridWidth) / 2;
+    float offsetY = 150;
 
     int selectedState = 1;
 
-    sf::Text stateText("Etat actuel : Vivant", font, 18);
-    stateText.setFillColor(sf::Color::Black);
+    Text stateText("Etat actuel : Vivant", font, 18);
+    stateText.setFillColor(Color::Black);
     stateText.setPosition(expandedWindowWidth / 2 - stateText.getLocalBounds().width / 2, 10.f);
 
-    sf::RectangleShape stateButton1(sf::Vector2f(150.f, 30.f));
-    sf::RectangleShape stateButton2(sf::Vector2f(150.f, 30.f));
-    sf::RectangleShape stateButton3(sf::Vector2f(150.f, 30.f));
-
+    RectangleShape stateButton1(Vector2f(150.f, 30.f));
     stateButton1.setPosition(expandedWindowWidth / 2 - 250.f, 50.f);
+
+    RectangleShape stateButton2(Vector2f(150.f, 30.f));
     stateButton2.setPosition(expandedWindowWidth / 2 - 75.f, 50.f);
+
+    RectangleShape stateButton3(Vector2f(150.f, 30.f));
     stateButton3.setPosition(expandedWindowWidth / 2 + 100.f, 50.f);
 
-    sf::Text stateButtonText1("Vivant", font, 16);
-    sf::Text stateButtonText2("Mort", font, 16);
-    sf::Text stateButtonText3("Obstacle", font, 16);
-
+    Text stateButtonText1("Vivant", font, 16);
+    stateButtonText1.setFillColor(Color::Black);
     stateButtonText1.setPosition(stateButton1.getPosition().x + 10.f, stateButton1.getPosition().y + 5.f);
+
+    Text stateButtonText2("Mort", font, 16);
+    stateButtonText2.setFillColor(Color::Black);
     stateButtonText2.setPosition(stateButton2.getPosition().x + 10.f, stateButton2.getPosition().y + 5.f);
+
+    Text stateButtonText3("Obstacle", font, 16);
+    stateButtonText3.setFillColor(Color::Black);
     stateButtonText3.setPosition(stateButton3.getPosition().x + 10.f, stateButton3.getPosition().y + 5.f);
 
+    Text rowsText("Nombre de lignes:", font, 20);
+    rowsText.setFillColor(Color::Black);
+    rowsText.setPosition(50.f, offsetY - 40.f);
+
+    RectangleShape rowsBox(Vector2f(100.f, 30.f));
+    rowsBox.setFillColor(Color::White);
+    rowsBox.setOutlineColor(Color::Black);
+    rowsBox.setOutlineThickness(2.f);
+    rowsBox.setPosition(200.f, offsetY - 40.f);
+
+    string rowsInput = to_string(gridRows);
+    Text rowsValue(rowsInput, font, 18);
+    rowsValue.setFillColor(Color::Black);
+    rowsValue.setPosition(210.f, offsetY - 35.f);
+
+    Text colsText("Nombre de colonnes:", font, 20);
+    colsText.setFillColor(Color::Black);
+    colsText.setPosition(50.f, offsetY);
+
+    RectangleShape colsBox(Vector2f(100.f, 30.f));
+    colsBox.setFillColor(Color::White);
+    colsBox.setOutlineColor(Color::Black);
+    colsBox.setOutlineThickness(2.f);
+    colsBox.setPosition(200.f, offsetY);
+
+    string colsInput = to_string(gridCols);
+    Text colsValue(colsInput, font, 18);
+    colsValue.setFillColor(Color::Black);
+    colsValue.setPosition(210.f, offsetY + 5.f);
+
     auto updateStateButtons = [&]() {
-        stateButton1.setFillColor(selectedState == 1 ? sf::Color::Green : sf::Color(200, 200, 200));
-        stateButton2.setFillColor(selectedState == 2 ? sf::Color::Red : sf::Color(200, 200, 200));
-        stateButton3.setFillColor(selectedState == 3 ? sf::Color::Blue : sf::Color(200, 200, 200));
+        stateButton1.setFillColor(selectedState == 1 ? Color::Green : Color(200, 200, 200));
+        stateButton2.setFillColor(selectedState == 2 ? Color::Red : Color(200, 200, 200));
+        stateButton3.setFillColor(selectedState == 3 ? Color::Blue : Color(200, 200, 200));
         };
 
     updateStateButtons();
 
-    sf::RectangleShape confirmButton(sf::Vector2f(200.f, 50.f));
-    confirmButton.setFillColor(sf::Color::White);
-    confirmButton.setOutlineThickness(1.f);
-    confirmButton.setOutlineColor(sf::Color::Black);
-    confirmButton.setPosition(expandedWindowWidth / 2 - confirmButton.getSize().x / 2, gridRows * cellSize + offsetY + 40.f);
-
-    sf::Text confirmText("Lancer Simulation", font, 18);
-    confirmText.setFillColor(sf::Color::Black);
-    confirmText.setPosition(confirmButton.getPosition().x + 20.f, confirmButton.getPosition().y + 10.f);
-
-    sf::RectangleShape saveButton(sf::Vector2f(200.f, 50.f));
-    saveButton.setFillColor(sf::Color::White);
-    saveButton.setOutlineThickness(1.f);
-    saveButton.setOutlineColor(sf::Color::Black);
-    saveButton.setPosition(expandedWindowWidth / 2 - saveButton.getSize().x / 2, gridRows * cellSize + offsetY + 100.f);
-
-    sf::Text saveButtonText("Sauvegarder Grille", font, 18);
-    saveButtonText.setFillColor(sf::Color::Black);
-    saveButtonText.setPosition(saveButton.getPosition().x + 10.f, saveButton.getPosition().y + 10.f);
-
     bool isDragging = false;
+    bool editingRows = false;
+    bool editingCols = false;
 
     while (window.isOpen()) {
-        sf::Event event;
+        Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+            if (event.type == Event::Closed) {
                 window.close();
                 return;
             }
 
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
+            if (event.type == Event::MouseButtonPressed) {
+                if (rowsBox.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    editingRows = true;
+                    editingCols = false;
+                }
+                else if (colsBox.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    editingCols = true;
+                    editingRows = false;
+                }
+                else {
+                    editingRows = false;
+                    editingCols = false;
+                }
+
+                if (stateButton1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 1;
+                    stateText.setString("Etat actuel : Vivant");
+                    updateStateButtons();
+                }
+                if (stateButton2.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 2;
+                    stateText.setString("Etat actuel : Mort");
+                    updateStateButtons();
+                }
+                if (stateButton3.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    selectedState = 3;
+                    stateText.setString("Etat actuel : Obstacle");
+                    updateStateButtons();
+                }
+
+                if (event.mouseButton.button == Mouse::Left) {
                     int x = (event.mouseButton.y - offsetY) / cellSize;
                     int y = (event.mouseButton.x - offsetX) / cellSize;
+
                     if (x >= 0 && y >= 0 && x < gridRows && y < gridCols) {
-                        grid->updateAliveCells({ grid->getCell(x, y) });
+                        grid->setCell(x, y, selectedState == 1 ? "Standard" : (selectedState == 3 ? "Obstacle" : "Standard"));
+                        grid->getCell(x, y)->setAlive(selectedState == 1);
                         isDragging = true;
                     }
+                }
+            }
 
-                    if (stateButton1.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        selectedState = 1;
-                        stateText.setString("Etat actuel : Vivant");
-                        updateStateButtons();
+            if (event.type == Event::TextEntered) {
+                if (isdigit(event.text.unicode)) {
+                    if (editingRows && rowsInput.size() < 3) {
+                        rowsInput += static_cast<char>(event.text.unicode);
+                        rowsValue.setString(rowsInput);
                     }
-                    if (stateButton2.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        selectedState = 2;
-                        stateText.setString("Etat actuel : Mort");
-                        updateStateButtons();
+                    else if (editingCols && colsInput.size() < 3) {
+                        colsInput += static_cast<char>(event.text.unicode);
+                        colsValue.setString(colsInput);
                     }
-                    if (stateButton3.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        selectedState = 3;
-                        stateText.setString("Etat actuel : Obstacle");
-                        updateStateButtons();
+                }
+                else if (event.text.unicode == '\b') {
+                    if (editingRows && !rowsInput.empty()) {
+                        rowsInput.pop_back();
+                        rowsValue.setString(rowsInput);
                     }
-                    if (confirmButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        return;
-                    }
-                    if (saveButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        std::string filePath = FileHandler::saveFileDialog();
-                        if (!filePath.empty()) {
-                            ErrorHandler::showError("Grille sauvegardee avec succes.", &window);
-                        }
+                    else if (editingCols && !colsInput.empty()) {
+                        colsInput.pop_back();
+                        colsValue.setString(colsInput);
                     }
                 }
             }
 
-            if (event.type == sf::Event::MouseButtonReleased) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    isDragging = false;
-                }
-            }
+            if (event.type == Event::KeyReleased) {
+                try {
+                    int newRows = stoi(rowsInput);
+                    int newCols = stoi(colsInput);
 
-            if (event.type == sf::Event::MouseMoved) {
-                if (isDragging) {
-                    int x = (event.mouseMove.y - offsetY) / cellSize;
-                    int y = (event.mouseMove.x - offsetX) / cellSize;
-                    if (x >= 0 && y >= 0 && x < gridRows && y < gridCols) {
-                        grid->updateAliveCells({ grid->getCell(x, y) });
+                    if (newRows > 0 && newCols > 0 && (newRows != gridRows || newCols != gridCols)) {
+                        gridRows = newRows;
+                        gridCols = newCols;
+                        grid = GridFactory::createGrid(settings.getGridType(), gridRows, gridCols);
+
+                        cellSize = min((expandedWindowWidth - 200.f) / gridCols, (expandedWindowHeight - 300.f) / gridRows);
+                        gridWidth = cellSize * gridCols;
+                        gridHeight = cellSize * gridRows;
+                        offsetX = (expandedWindowWidth - gridWidth) / 2;
+                        offsetY = 150;
                     }
+                }
+                catch (...) {
+                    // Ignore invalid inputs
                 }
             }
         }
 
-        window.clear(sf::Color::White);
+        window.clear(Color::White);
 
         for (int i = 0; i < gridRows; ++i) {
             for (int j = 0; j < gridCols; ++j) {
-                sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
+                RectangleShape cell(Vector2f(cellSize, cellSize));
                 cell.setPosition(offsetX + j * cellSize, offsetY + i * cellSize);
 
-                auto cellObject = grid->getCell(i, j);
-                if (cellObject->isAlive()) {
-                    cell.setFillColor(sf::Color::Green);
+                Cell* cellObject = grid->getCell(i, j);
+                if (cellObject && cellObject->isAlive()) {
+                    cell.setFillColor(Color::Green);
+                }
+                else if (dynamic_cast<ObstacleCell*>(cellObject)) {
+                    cell.setFillColor(Color::Blue);
                 }
                 else {
-                    cell.setFillColor(sf::Color::White);
+                    cell.setFillColor(Color::White);
                 }
 
-                cell.setOutlineColor(sf::Color::Black);
+                cell.setOutlineColor(Color::Black);
                 cell.setOutlineThickness(1.f);
                 window.draw(cell);
             }
@@ -352,10 +408,12 @@ void GUI::renderCustomGrid() {
         window.draw(stateButtonText2);
         window.draw(stateButton3);
         window.draw(stateButtonText3);
-        window.draw(confirmButton);
-        window.draw(confirmText);
-        window.draw(saveButton);
-        window.draw(saveButtonText);
+        window.draw(rowsText);
+        window.draw(rowsBox);
+        window.draw(rowsValue);
+        window.draw(colsText);
+        window.draw(colsBox);
+        window.draw(colsValue);
 
         window.display();
     }
