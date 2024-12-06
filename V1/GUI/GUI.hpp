@@ -1,5 +1,4 @@
-#ifndef GUI_HPP
-#define GUI_HPP
+#pragma once
 
 #include "GameSettings.hpp"
 #include "FileHandler.hpp"
@@ -24,5 +23,3 @@ public:
     GUI();
     void runGUI();
 };
-
-#endif
