@@ -33,7 +33,7 @@ void LifeAlgorithm::toggleCells(const vector<Cell*>& cellsToToggle) {
 bool LifeAlgorithm::isGridStable() {
     string currentSignature = grid.getGridSignature();
     if (signatureHistory.size()>1){
-        if(signatureHistory[signatureHistory.size() - 1] == currentSignature){
+        if(signatureHistory[signatureHistory->size() - 1] == currentSignature){
             return true;
         }
     }
@@ -42,7 +42,7 @@ bool LifeAlgorithm::isGridStable() {
 }
 
 bool LifeAlgorithm::isGridLooping(int Tmax) {
-    string currentSignature = grid.getGridSignature();
+    string currentSignature = grid->getGridSignature();
 
     for (int T = Tmax; T >= 1; --T) {
 

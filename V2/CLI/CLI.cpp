@@ -30,12 +30,12 @@ void CLI::runConsoleMode() {
             std::cout << "Iteration " << iteration + 1 << "...\n";
 
             auto toggledCells = algorithm.computeCellsToToggle();
-            if (LifeAlgorithm(&grid).isGridStable()) {
+            if (LifeAlgorithm(grid).isGridStable()) {
                 std::cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
                 break;
             }
 
-            if (LifeAlgorithm(&grid).isGridLooping(4)) {
+            if (LifeAlgorithm(grid).isGridLooping(4)) {
                 std::cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
                 break;
             }
