@@ -1,66 +1,42 @@
-#pragma once //include guard
-
+#pragma once
 #include <vector>
+#include <memory>
 #include <string>
-using namespace std;
-
+#include <iostream>
 #include "Cell.hpp"
 
-class Grid{
+class Grid {
+protected:
+    int n, p;
+    std::vector<std::vector<std::unique_ptr<Cell>>> cells;
 
-    protected : 
-    
-    Cell ***grid;
-    int n;
-    int p;
-    vector<Cell*> aliveCells;
+public:
+    Grid(int rows, int cols);
+    virtual ~Grid() = default;
 
-    Grid();
-    Grid(int n, int p);
-    Grid(int n, int p, const vector<string>& data);
-
-    public :
-
-    Cell*** getGrid() const;
     int getN() const;
     int getP() const;
-    vector<Cell*> getAliveCells() const;
-    string getGridSignature() const;
 
-    void updateAliveCells();
-    void updateAliveCells(const vector<Cell*>& toggledCells);
-    void toggleCells(const vector<Cell*>& cellsToToggle);
-
-    virtual vector<Cell*> mooreNeighborhood(const Cell *cell) const;
-    virtual vector<Cell*> computeCellsToToggle() const; 
+    void setCell(int x, int y, const std::string& type);
+    Cell* getCell(int x, int y) const;
+    void updateAliveCells(const std::vector<Cell*>& toggledCells);
+    virtual std::vector<Cell*> mooreNeighborhood(Cell* cell) const = 0;
+    void printGrid() const;
 };
 
-class StandardGrid : public Grid{
-    
-    public :
-
-    StandardGrid(); //default grid
-    StandardGrid(int n, int p);
-    StandardGrid(int n, int p,const vector<string>& data);
-
+class StandardGrid : public Grid {
+public:
+    StandardGrid(int rows, int cols);
+    std::vector<Cell*> mooreNeighborhood(Cell* cell) const override;
 };
 
-class ToroidalGrid : public Grid{
-    
-    public :
-
-    ToroidalGrid(); //default grid
-    ToroidalGrid(int n, int p);
-    ToroidalGrid(int n, int p,const vector<string>& data);
-
-    vector<Cell*> mooreNeighborhood(const Cell *cell) const override;
+class ToroidalGrid : public Grid {
+public:
+    ToroidalGrid(int rows, int cols);
+    std::vector<Cell*> mooreNeighborhood(Cell* cell) const override;
 };
 
 class GridFactory {
-
-    public:
-
-    static Grid* createGrid(const string& gridType);
-    static Grid* createGrid(const string& gridType, int n, int p);
-    static Grid* createGrid(const string& gridType, int n, int p, const vector<string>& data);
+public:
+    static std::unique_ptr<Grid> createGrid(const std::string& type, int rows, int cols);
 };

@@ -1,7 +1,43 @@
 #include "Parameters.hpp"
-#include <windows.h>
-#include <commdlg.h>
 
+// Classe ErrorHandler
+void ErrorHandler::showError(const std::string& message) {
+    std::cerr << "Error: " << message << std::endl;
+}
+
+void ErrorHandler::showError(const std::string& message, RenderWindow* window) {
+    if (!window) {
+        showError(message);
+        return;
+    }
+
+    Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        std::cerr << "Error: Unable to load font to display the error message." << std::endl;
+        return;
+    }
+
+    Text errorText;
+    errorText.setFont(font);
+    errorText.setString("Error: " + message);
+    errorText.setCharacterSize(20);
+    errorText.setFillColor(Color::Red);
+    errorText.setPosition(10.f, 10.f);
+
+    window->clear(Color::White);
+    window->draw(errorText);
+    window->display();
+
+    Event event;
+    while (window->waitEvent(event)) {
+        if (event.type == Event::Closed || event.type == Event::KeyPressed) {
+            window->close();
+            return;
+        }
+    }
+}
+
+// Classe FileHandler
 std::string FileHandler::openFileDialog() {
     char filename[MAX_PATH] = { 0 };
     OPENFILENAME ofn;
@@ -55,11 +91,9 @@ std::unique_ptr<Grid> FileHandler::loadGridFromFile(const std::string& path, con
             if (state == 1) {
                 grid->setCell(i, j, "Standard");
                 grid->getCell(i, j)->setAlive(true);
-            }
-            else if (state == 2) {
+            } else if (state == 2) {
                 grid->setCell(i, j, "Obstacle");
-            }
-            else {
+            } else {
                 grid->setCell(i, j, "Standard");
             }
         }
@@ -81,11 +115,9 @@ void FileHandler::saveGridToFile(const Grid& grid, const std::string& path) {
             Cell* cell = grid.getCell(i, j);
             if (dynamic_cast<ObstacleCell*>(cell)) {
                 file << "2 ";
-            }
-            else if (cell->isAlive()) {
+            } else if (cell->isAlive()) {
                 file << "1 ";
-            }
-            else {
+            } else {
                 file << "0 ";
             }
         }
@@ -95,13 +127,13 @@ void FileHandler::saveGridToFile(const Grid& grid, const std::string& path) {
     file.close();
 }
 
-static void FileHandler::saveSimulationHistory(
-    const string& path,
-    const vector<pair<int, vector<vector<string>>>>& simulationHistory
+void FileHandler::saveSimulationHistory(
+    const std::string& path,
+    const std::vector<std::pair<int, std::vector<std::vector<std::string>>>>& simulationHistory
 ) {
-    ofstream file(path);
+    std::ofstream file(path);
     if (!file.is_open()) {
-        throw runtime_error("Impossible d'ouvrir le fichier pour la sauvegarde : " + path);
+        throw std::runtime_error("Impossible d'ouvrir le fichier pour la sauvegarde : " + path);
     }
 
     for (const auto& iterationData : simulationHistory) {
@@ -121,43 +153,9 @@ static void FileHandler::saveSimulationHistory(
     file.close();
 }
 
-void ErrorHandler::showError(const std::string& message) {
-    std::cerr << "Error: " << message << std::endl;
-}
-
-void ErrorHandler::showError(const std::string& message, sf::RenderWindow* window) {
-    if (!window) {
-        showError(message);
-        return;
-    }
-
-    sf::Font font;
-    if (!font.loadFromFile("arial.ttf")) {
-        std::cerr << "Error: Unable to load font to display the error message." << std::endl;
-        return;
-    }
-
-    sf::Text errorText;
-    errorText.setFont(font);
-    errorText.setString("Error: " + message);
-    errorText.setCharacterSize(20);
-    errorText.setFillColor(sf::Color::Red);
-    errorText.setPosition(10.f, 10.f);
-
-    window->clear(sf::Color::White);
-    window->draw(errorText);
-    window->display();
-
-    sf::Event event;
-    while (window->waitEvent(event)) {
-        if (event.type == sf::Event::Closed || event.type == sf::Event::KeyPressed) {
-            window->close();
-            return;
-        }
-    }
-}
-
-GameSettings::GameSettings(int maxIterations, const std::string& gridType) : maxIterations(maxIterations), gridType(gridType) {}
+// Classe GameSettings
+GameSettings::GameSettings(int maxIterations, const std::string& gridType)
+    : maxIterations(maxIterations), gridType(gridType) {}
 
 int GameSettings::getMaxIterations() const {
     return maxIterations;

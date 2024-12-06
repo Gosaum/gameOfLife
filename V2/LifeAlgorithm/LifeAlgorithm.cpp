@@ -1,57 +1,31 @@
-#include "Lifealgorithm.hpp"
+#include "LifeAlgorithm.hpp"
 
-//#include <functional>
-using namespace std;
+LifeAlgorithm::LifeAlgorithm(Grid* grid) : grid(grid) {}
 
-LifeAlgorithm::LifeAlgorithm(Grid& grid): grid(grid) {}
+std::vector<Cell*> LifeAlgorithm::computeCellsToToggle() {
+    std::vector<Cell*> toggledCells;
+    for (int i = 0; i < grid->getN(); ++i) {
+        for (int j = 0; j < grid->getP(); ++j) {
+            Cell* cell = grid->getCell(i, j);
+            if (!cell) continue;
 
-LifeAlgorithm::LifeAlgorithm(Grid *grid): grid(*grid) {}
+            int livingNeighbors = 0;
+            for (Cell* neighbor : grid->mooreNeighborhood(cell)) {
+                if (neighbor && neighbor->isAlive()) {
+                    ++livingNeighbors;
+                }
+            }
 
-void LifeAlgorithm::iterateGrid() {
-
-    vector<Cell*> toToggle = grid.computeCellsToToggle();
-    grid.toggleCells(toToggle);
-}
-
-bool LifeAlgorithm::isGridStable() {
-
-    /*
-    renvoie true si la grille est la même que la précédente
-    */
-
-    string currentSignature = grid.getGridSignature();
-    if (signatureHistory.size()>1){
-        if(signatureHistory[signatureHistory.size() - 1] == currentSignature){
-            return true;
-        }
-    }
-    signatureHistory.push_back(currentSignature);
-    return false;
-}
-
-bool LifeAlgorithm::isGridStable(int Tmax) {
-    
-    /*
-    renvoie true si la grille est la même que la précédente ou qu'elle est oscillante
-    ---
-    prend Tmax la période maximale qui est detectée l'algorithme
-    vérifie si la grille était la même que il y a Tmax itérations,
-    puis vérifie si la grille était la même que il y a Tmax-1 itérations,
-    puis Tmax-2 ... jusqu'à vérifier si la grille était la même que la dernière itération
-    ne vérifie pas pour une période T si il n'y a pas encore eu T itérations de grille
-    */
-
-    string currentSignature = grid.getGridSignature();
-
-    for (int T = Tmax; T >= 1; --T) {
-
-        if (static_cast<int>(signatureHistory.size()) >= T) {
-            int previousIndex = static_cast<int>(signatureHistory.size()) - T;
-            if (signatureHistory[previousIndex] == currentSignature) {
-                return true;
+            if (cell->isAlive() != cell->computeNextState(livingNeighbors)) {
+                toggledCells.push_back(cell);
             }
         }
     }
-    signatureHistory.push_back(currentSignature);
-    return false;
+    return toggledCells;
+}
+
+void LifeAlgorithm::toggleCells(const std::vector<Cell*>& cellsToToggle) {
+    for (Cell* cell : cellsToToggle) {
+        cell->toggleAlive();
+    }
 }

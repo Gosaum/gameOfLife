@@ -1,20 +1,14 @@
 #pragma once
-
+#include <vector>
 #include "Grid.hpp"
 
-class LifeAlgorithm{
-    
-    private :
+class LifeAlgorithm {
+private:
+    Grid* grid;
 
-    Grid& grid;
-    vector<string> signatureHistory;
+public:
+    LifeAlgorithm(Grid* grid);
 
-    public :
-
-    LifeAlgorithm(Grid& grid);
-    LifeAlgorithm(Grid *grid);
-
-    void iterateGrid();
-    bool isGridStable();
-    bool isGridStable(int Tmax);
+    std::vector<Cell*> computeCellsToToggle();
+    void toggleCells(const std::vector<Cell*>& cellsToToggle);
 };
