@@ -511,7 +511,7 @@ void GUI::renderGrid(Grid& grid) {
     float simulationSpeed = 1.0f;
     int iteration = 0;
     int selectedState = 1; // 1 = Vivant, 2 = Mort, 3 = Obstacle
-    const int maxIterations = 10000;
+    const int maxIterations = settings.getMaxIterations();
 
     const int gridRows = grid.getN();
     const int gridCols = grid.getP();
@@ -617,6 +617,8 @@ void GUI::renderGrid(Grid& grid) {
     auto lastUpdateTime = chrono::steady_clock::now();
     bool isDragging = false;
     vector<pair<int, vector<vector<string>>>> iterationData;
+    std::unordered_set<std::string> previousStates;
+    LifeAlgorithm algorithm(&grid);
 
     while (window.isOpen()) {
         Event event;
@@ -719,45 +721,35 @@ void GUI::renderGrid(Grid& grid) {
             auto elapsedTime = chrono::duration_cast<chrono::milliseconds>(currentTime - lastUpdateTime).count();
 
             if (elapsedTime >= simulationSpeed * 1000) {
-                ++iteration;
-                iterationText.setString("Iteration : " + to_string(iteration));
+                ++iteration; // Augmente le compteur d'itérations
+                iterationText.setString("Iteration : " + std::to_string(iteration));
 
+                // Vérification : nombre maximal d'itérations atteint
                 if (iteration >= maxIterations) {
                     simulationEnded = true;
-                    isPaused = true;
                     endReasonText.setString("Simulation terminee : limite d'iterations atteinte.");
-                }
-                else {
-                    auto toggledCells = LifeAlgorithm(&grid).computeCellsToToggle();
-                    if (LifeAlgorithm(&grid).isGridStable()) {
-                        simulationEnded = true;
-                        endReasonText.setString("Simulation terminee : La grille est stable.");
-                    } else if (LifeAlgorithm(&grid.isGridLooping(4))) {
-                        simulationEnded = true;
-                        endReasonText.setString("Simulation terminee : La grille boucle.");
-                    }
-                    else {
-                        LifeAlgorithm(&grid).toggleCells(toggledCells);
-                    }
-                }
-                lastUpdateTime = currentTime;
+                } else {
+                    // Calcul du hash pour l'état actuel de la grille
+                    std::string currentHash = algorithm.hashGrid(grid);
 
-                vector<vector<string>> currentGridState(gridRows, vector<string>(gridCols));
-                for (int i = 0; i < gridRows; ++i) {
-                    for (int j = 0; j < gridCols; ++j) {
-                        Cell* cell = grid.getCell(i, j);
-                        if (dynamic_cast<ObstacleCell*>(cell)) {
-                            currentGridState[i][j] = "O";
-                        }
-                        else if (cell->isAlive()) {
-                            currentGridState[i][j] = "1";
-                        }
-                        else {
-                            currentGridState[i][j] = "0";
+                    // Vérification : boucle détectée
+                    if (previousStates.find(currentHash) != previousStates.end()) {
+                        simulationEnded = true;
+                        endReasonText.setString("Simulation terminee : grille en boucle.");
+                    } else {
+                        previousStates.insert(currentHash); // Stocke l'état actuel
+
+                        // Calcul des cellules à basculer
+                        auto toggledCells = algorithm.computeCellsToToggle();
+                        if (toggledCells.empty()) {
+                            simulationEnded = true;
+                            endReasonText.setString("Simulation terminee : grille stable.");
+                        } else {
+                            algorithm.toggleCells(toggledCells); // Applique les changements
                         }
                     }
                 }
-                iterationData.emplace_back(iteration, currentGridState);
+                lastUpdateTime = currentTime; // Met à jour le temps
             }
         }
 

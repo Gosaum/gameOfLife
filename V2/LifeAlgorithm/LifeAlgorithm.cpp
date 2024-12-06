@@ -30,29 +30,36 @@ void LifeAlgorithm::toggleCells(const vector<Cell*>& cellsToToggle) {
     }
 }
 
-bool LifeAlgorithm::isGridStable() {
-    string currentSignature = grid.getGridSignature();
-    if (signatureHistory.size()>1){
-        if(signatureHistory[signatureHistory->size() - 1] == currentSignature){
-            return true;
-        }
-    }
-    signatureHistory.push_back(currentSignature);
-    return false;
-}
-
-bool LifeAlgorithm::isGridLooping(int Tmax) {
-    string currentSignature = grid->getGridSignature();
-
-    for (int T = Tmax; T >= 1; --T) {
-
-        if (static_cast<int>(signatureHistory.size()) >= T) {
-            int previousIndex = static_cast<int>(signatureHistory.size()) - T;
-            if (signatureHistory[previousIndex] == currentSignature) {
-                return true;
+string LifeAlgorithm::hashGrid(const Grid& grid) {
+    ostringstream oss;
+    for (int i = 0; i < grid.getN(); ++i) {
+        for (int j = 0; j < grid.getP(); ++j) {
+            Cell* cell = grid.getCell(i, j);
+            if (dynamic_cast<ObstacleCell*>(cell)) {
+                oss << "O";
+            } else {
+                oss << (cell->isAlive() ? "1" : "0");
             }
         }
     }
-    signatureHistory.push_back(currentSignature);
-    return false;
+    return oss.str();
+}
+
+void LifeAlgorithm::simulateWithLoopDetection(Grid* grid, int maxIterations) {
+    unordered_set<string> previousStates;
+    for (int iteration = 0; iteration < maxIterations; ++iteration) {
+        string currentHash = hashGrid(*grid);
+        if (previousStates.find(currentHash) != previousStates.end()) {
+            cout << "La simulation boucle apres " << iteration + 1 << " iterations.\n";
+            break;
+        }
+        previousStates.insert(currentHash);
+
+        auto toggledCells = computeCellsToToggle();
+        if (toggledCells.empty()) {
+            cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
+            break;
+        }
+        toggleCells(toggledCells);
+    }
 }

@@ -24,13 +24,12 @@ using namespace sf;
 class LifeAlgorithm {
 private:
     Grid* grid;
-    vector<string> signatureHistory;
 
 public:
     LifeAlgorithm(Grid* grid);
 
     vector<Cell*> computeCellsToToggle();
     void toggleCells(const vector<Cell*>& cellsToToggle);
-    bool isGridStable();
-    bool isGridLooping(int Tmax);
+    string hashGrid(const Grid& grid);
+    void simulateWithLoopDetection(Grid* grid, int maxIterations);
 };

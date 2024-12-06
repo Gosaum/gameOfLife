@@ -1,93 +1,9 @@
 #include "Grid.hpp"
 
-#define DEFAULT_ROWS 20
-#define DEFAULT_COLS 20
-
-void Grid::updateAliveCells(){
-    
-    /*
-    met à jour l'attribut aliveCells en recherchant linéairement toutes les cellules vivantes dans la grille
-    */
-    aliveCells.clear();
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < p; j++) {
-            if ((*grid[i][j]).isAlive()==true){ //si la cellule est vivante
-                aliveCells.push_back(grid[i][j]); //ajoute son pointeur
-            }
-        }
+Grid::Grid(int rows, int cols) : n(rows), p(cols), cells(rows) {
+    for (auto& row : cells) {
+        row.resize(cols);
     }
-}
-
-Grid::Grid():n(DEFAULT_ROWS),p(DEFAULT_COLS){
-
-    /*
-    constructeur par défaut : instancie un objet avec une grille morte de taille par défaut
-    */
-
-    grid = new Cell**[n]; //créé un tableau de n pointeurs de pointeurs de Cell
-    for (int i = 0; i<n; ++i) { //pour chaque élément
-        grid[i] = new Cell*[p]; //affecte élément à un tableau de p pointeurs de Cell
-        for (int j=0; j<p; ++j) {
-            grid[i][j] = CellFactory::createCell("0", i, j); //créé une cellule pour chaque élément de la grille
-        }
-    }
-};
-
-Grid::Grid(int rows, int cols):n(rows),p(cols){
-
-    /*
-    constructeur 1 : instancie un objet avec une grille morte de taille n * p
-    */
-
-    grid = new Cell**[rows];
-    for (int i = 0; i < rows; ++i) {
-        grid[i] = new Cell*[cols];
-        for (int j=0; j < cols; ++j) {
-            grid[i][j] = CellFactory::createCell("0", i, j);
-        }
-    }
-};
-
-Grid::Grid(int rows, int cols): n(rows), p(cols) {
-
-    /*
-    constructeur 1 : instancie un objet avec une grille morte de taille n * p
-    */
-   
-    grid.resize(n, vector<std::unique_ptr<Cell>>(p));
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < p; ++j) {
-            grid[i][j] = CellFactory::createCell("0", i, j);
-        }
-    }
-}
-
-
-Grid::Grid(int rows, int cols, const vector<string>& data) : n(rows), p(cols) {
-    
-    /*
-    constructeur 2 : instancie un objet avec une grille de taille n * p et avec un jeu de donnée
-    ---
-    utilise un vecteur qui contient à l'index [n+p] le type (en string) de la cellule [n][p]
-    si le vecteur ne contient pas assez d'éléments, le reste du tableau est rempli par une cellule classique morte
-    si le vecteur a trop d'éléments, les éléments en trop sont ignorés
-    ---
-    note : le cas où le type de la cellule est inconnu (e.g. "hello world!" aulieu de "0" ou "1" ou "O" ...)
-    est traité dans la classe CellFactory : une cellule classique morte est instanciée
-    */
-
-    int dataIndex = 0;
-    int dataSize = data.size();
-    grid = new Cell**[rows];
-    for (int i = 0; i < rows; ++i) {
-        grid[i] = new Cell*[cols];
-        for (int j = 0; j < cols; ++j) {
-            string cellType = (dataIndex < dataSize) ? data.at(dataIndex++) : "0";
-            grid[i][j] = CellFactory::createCell(cellType, i, j);
-        }
-    }
-
-    updateAliveCells();
 }
 
 int Grid::getN() const {
@@ -106,7 +22,25 @@ Cell* Grid::getCell(int x, int y) const {
     return cells[x][y].get();
 }
 
+void Grid::updateAliveCells(const vector<Cell*>& toggledCells) {
+    for (auto cell : toggledCells) {
+        if (cell) {
+            cell->toggleAlive();
+        }
+    }
+}
+
 void Grid::printGrid() const {
+    for (const auto& row : cells) {
+        for (const auto& cell : row) {
+            cout << (cell && cell->isAlive() ? "1 " : "0 ");
+        }
+        cout << "\n";
+    }
+    cout << "\n";
+}
+
+void Grid::printGridCLI() const {
     for (const auto& row : cells) {
         for (const auto& cell : row) {
             if (cell) {
@@ -115,15 +49,15 @@ void Grid::printGrid() const {
                 } else if (cell->isAlive()) {
                     std::cout << "\033[32m⬛ "; // Vert pour les vivants
                 } else {
-                    std::cout << "\033[30m⬛ "; // Noir pour les morts
+                    std::cout << "\033[37m⬛ "; // Blanc pour les morts
                 }
             } else {
-                std::cout << "\033[30m⬛ "; // Noir pour les cellules nulles
+                std::cout << "\033[37m⬛ "; // Blanc pour les cellules nulles
             }
         }
         std::cout << "\033[0m\n"; // Réinitialisation de la couleur après chaque ligne
     }
-    std::cout << "\033[0m\n"; // Réinitialisation de la couleur
+    std::cout << "\033[0m\n"; // Réinitialisation de la couleur après toute la grille
 }
 
 StandardGrid::StandardGrid(int rows, int cols) : Grid(rows, cols) {}
@@ -172,23 +106,4 @@ unique_ptr<Grid> GridFactory::createGrid(const string& type, int rows, int cols)
     } else {
         throw invalid_argument("Unknown grid type: " + type);
     }
-}
-
-string Grid::getGridSignature() const {
-
-    vector<Cell*> sortedAliveCells = aliveCells;
-    //trie aliveCells
-    sort(sortedAliveCells.begin(), sortedAliveCells.end(), [](Cell* a, Cell* b) {
-        if ((*a).getX() == (*b).getX()) {
-            return (*a).getY() < (*b).getY();
-        }
-        return (*a).getX() < (*b).getX();
-    });
-
-    //écrit la signature
-    string signature = to_string(n) + to_string(p);
-    for(Cell* aliveCell : sortedAliveCells){
-        signature += to_string((*aliveCell).getX()) + to_string((*aliveCell).getY());
-    }
-    return signature;
 }

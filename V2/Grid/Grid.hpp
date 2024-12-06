@@ -23,14 +23,10 @@ using namespace sf;
 
 class Grid {
 protected:
-    std::vector<std::vector<std::unique_ptr<Cell>>> grid;
     int n, p;
     vector<vector<unique_ptr<Cell>>> cells;
-    vector<Cell*> aliveCells;
 
 public:
-    Grid();
-    Grid(int rows, int cols, const vector<string>& data);
     Grid(int rows, int cols);
     virtual ~Grid() = default;
 
@@ -39,11 +35,10 @@ public:
 
     void setCell(int x, int y, const string& type);
     Cell* getCell(int x, int y) const;
-    void updateAliveCells();
     void updateAliveCells(const vector<Cell*>& toggledCells);
     virtual vector<Cell*> mooreNeighborhood(Cell* cell) const = 0;
     void printGrid() const;
-    string getGridSignature() const;
+    void printGridCLI() const;
 };
 
 class StandardGrid : public Grid {
