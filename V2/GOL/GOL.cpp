@@ -27,5 +27,5 @@ void GOL::run(){
     cout << endl << "Appuyez sur ENTREE pour quitter.";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
-    return 0;
+    return ;
 }

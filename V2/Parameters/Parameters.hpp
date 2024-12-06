@@ -11,6 +11,7 @@
 #include "Grid.hpp"
 
 using namespace sf;
+using namespace std;
 
 class ErrorHandler {
 public:

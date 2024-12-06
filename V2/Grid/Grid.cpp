@@ -14,7 +14,7 @@ int Grid::getP() const {
     return p;
 }
 
-void Grid::setCell(int x, int y, const std::string& type) {
+void Grid::setCell(int x, int y, const string& type) {
     cells[x][y] = CellFactory::createCell(type, x, y);
 }
 
@@ -22,7 +22,7 @@ Cell* Grid::getCell(int x, int y) const {
     return cells[x][y].get();
 }
 
-void Grid::updateAliveCells(const std::vector<Cell*>& toggledCells) {
+void Grid::updateAliveCells(const vector<Cell*>& toggledCells) {
     for (auto cell : toggledCells) {
         if (cell) {
             cell->toggleAlive();
@@ -33,17 +33,17 @@ void Grid::updateAliveCells(const std::vector<Cell*>& toggledCells) {
 void Grid::printGrid() const {
     for (const auto& row : cells) {
         for (const auto& cell : row) {
-            std::cout << (cell && cell->isAlive() ? "1 " : "0 ");
+            cout << (cell && cell->isAlive() ? "1 " : "0 ");
         }
-        std::cout << "\n";
+        cout << "\n";
     }
-    std::cout << "\n";
+    cout << "\n";
 }
 
 StandardGrid::StandardGrid(int rows, int cols) : Grid(rows, cols) {}
 
-std::vector<Cell*> StandardGrid::mooreNeighborhood(Cell* cell) const {
-    std::vector<Cell*> neighbors;
+vector<Cell*> StandardGrid::mooreNeighborhood(Cell* cell) const {
+    vector<Cell*> neighbors;
     int x = cell->getX();
     int y = cell->getY();
 
@@ -62,8 +62,8 @@ std::vector<Cell*> StandardGrid::mooreNeighborhood(Cell* cell) const {
 
 ToroidalGrid::ToroidalGrid(int rows, int cols) : Grid(rows, cols) {}
 
-std::vector<Cell*> ToroidalGrid::mooreNeighborhood(Cell* cell) const {
-    std::vector<Cell*> neighbors;
+vector<Cell*> ToroidalGrid::mooreNeighborhood(Cell* cell) const {
+    vector<Cell*> neighbors;
     int x = cell->getX();
     int y = cell->getY();
 
@@ -78,12 +78,12 @@ std::vector<Cell*> ToroidalGrid::mooreNeighborhood(Cell* cell) const {
     return neighbors;
 }
 
-std::unique_ptr<Grid> GridFactory::createGrid(const std::string& type, int rows, int cols) {
+unique_ptr<Grid> GridFactory::createGrid(const string& type, int rows, int cols) {
     if (type == "Standard") {
-        return std::make_unique<StandardGrid>(rows, cols);
+        return make_unique<StandardGrid>(rows, cols);
     } else if (type == "Toroidal") {
-        return std::make_unique<ToroidalGrid>(rows, cols);
+        return make_unique<ToroidalGrid>(rows, cols);
     } else {
-        throw std::invalid_argument("Unknown grid type: " + type);
+        throw invalid_argument("Unknown grid type: " + type);
     }
 }

@@ -23,12 +23,12 @@ bool ObstacleCell::computeNextState(int livingNeighbors) {
     return false;
 }
 
-std::unique_ptr<Cell> CellFactory::createCell(const std::string& type, int x, int y) {
+unique_ptr<Cell> CellFactory::createCell(const string& type, int x, int y) {
     if (type == "Standard") {
-        return std::make_unique<StandardCell>(x, y);
+        return make_unique<StandardCell>(x, y);
     } else if (type == "Obstacle") {
-        return std::make_unique<ObstacleCell>(x, y);
+        return make_unique<ObstacleCell>(x, y);
     } else {
-        throw std::invalid_argument("Unknown cell type: " + type);
+        throw invalid_argument("Unknown cell type: " + type);
     }
 }

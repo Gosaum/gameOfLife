@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
+#include <iostream>
 #include "Grid.hpp"
+
+using namespace std;
 
 class LifeAlgorithm {
 private:
@@ -9,6 +12,6 @@ private:
 public:
     LifeAlgorithm(Grid* grid);
 
-    std::vector<Cell*> computeCellsToToggle();
-    void toggleCells(const std::vector<Cell*>& cellsToToggle);
+    vector<Cell*> computeCellsToToggle();
+    void toggleCells(const vector<Cell*>& cellsToToggle);
 };

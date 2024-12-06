@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <iostream>
+
+using namespace std;
 
 class Cell {
 protected:

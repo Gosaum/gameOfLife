@@ -2,8 +2,8 @@
 
 LifeAlgorithm::LifeAlgorithm(Grid* grid) : grid(grid) {}
 
-std::vector<Cell*> LifeAlgorithm::computeCellsToToggle() {
-    std::vector<Cell*> toggledCells;
+vector<Cell*> LifeAlgorithm::computeCellsToToggle() {
+    vector<Cell*> toggledCells;
     for (int i = 0; i < grid->getN(); ++i) {
         for (int j = 0; j < grid->getP(); ++j) {
             Cell* cell = grid->getCell(i, j);
@@ -24,7 +24,7 @@ std::vector<Cell*> LifeAlgorithm::computeCellsToToggle() {
     return toggledCells;
 }
 
-void LifeAlgorithm::toggleCells(const std::vector<Cell*>& cellsToToggle) {
+void LifeAlgorithm::toggleCells(const vector<Cell*>& cellsToToggle) {
     for (Cell* cell : cellsToToggle) {
         cell->toggleAlive();
     }
