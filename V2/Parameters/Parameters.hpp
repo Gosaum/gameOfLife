@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <windows.h>
+#include <commdlg.h>
 #include <SFML/Graphics.hpp>
 #include "Grid.hpp"
 

@@ -2,6 +2,8 @@
 
 #include "Parameters.hpp"
 #include <string>
+#include <iostream>
+#include <fstream>
 
 class CLI {
 private:

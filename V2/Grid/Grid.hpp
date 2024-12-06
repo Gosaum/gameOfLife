@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <iostream>
+#include <stdexcept>
 #include "Cell.hpp"
 
 class Grid {

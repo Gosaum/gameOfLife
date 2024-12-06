@@ -4,6 +4,7 @@
 #include "Grid.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <stdexcept>
 
 class GUI {
 private:
