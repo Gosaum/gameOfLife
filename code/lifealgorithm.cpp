@@ -1,9 +1,11 @@
 #include "lifealgorithm.hpp"
 
-#include <functional> //pour le hash
+//#include <functional>
 using namespace std;
 
 LifeAlgorithm::LifeAlgorithm(Grid& grid): grid(grid) {}
+
+LifeAlgorithm::LifeAlgorithm(Grid *grid): grid(*grid) {}
 
 void LifeAlgorithm::iterateGrid() {
 

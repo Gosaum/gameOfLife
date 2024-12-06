@@ -12,6 +12,7 @@ class LifeAlgorithm{
     public :
 
     LifeAlgorithm(Grid& grid);
+    LifeAlgorithm(Grid *grid);
 
     void iterateGrid();
     bool isGridStable();

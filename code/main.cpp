@@ -1,61 +1,15 @@
 #include <iostream>
 using namespace std;
 
-#include "lifealgorithm.hpp"
+#include "gol.hpp"
 #include "standardgrid.hpp"
 #include "toroidalgrid.hpp"
 
-//for debugging
-void printCells(vector<Cell*> vect) {
-     cout << "aliveCells" << endl;
-    for (Cell* e : vect){
-        cout << (*e).isAlive() << "(" << (*e).getX() << "," <<  (*e).getY() << ")" << endl;
-    }
-}
 
-void printGrid(Grid grid){
-    Cell*** g = grid.getGrid();
-    for (int i = 0; i<grid.getN(); ++i) {
-        string row = "";
-        for (int j=0; j<grid.getP(); ++j) {
-            row += to_string((*g[i][j]).isAlive());
-        }
-    cout << row << endl;
-    }
-}
 
 int main(){
-    
-    /*BATTERIE1
-    vector<string> data = {"0","0","1","0","d","1"};
-    StandardGrid foo(3,3,data);
-    foo.updateAliveCells();
-    foo.updateAliveCells(foo.getAliveCells());
-    */
-    /*BATTERIE2*/
-    vector<string> data = {
-        "0","0","0","0",
-        "1","0","0","0",
-        "1","0","0","0",
-        "1","0","0","0"};
-    ToroidalGrid foo(4,4,data);
-    LifeAlgorithm fooUtils(foo);
-    foo.updateAliveCells();
-    cout << "initialisation" << endl;
-    printGrid(foo);
-    cout << fooUtils.isGridStable(1) << endl;
-    fooUtils.iterateGrid();
-    cout << "iteration 1" << endl;
-    printGrid(foo);
-    cout << fooUtils.isGridStable(1) << endl;
-    fooUtils.iterateGrid();
-    cout << "iteration 2" << endl;
-    printGrid(foo);
-    fooUtils.iterateGrid();
-    cout << fooUtils.isGridStable(1) << endl;
-    cout << "iteration 3" << endl;
-    printGrid(foo);
-    cout << fooUtils.isGridStable(1) << endl;
+
+    GOL::run();
 
     return 0;
     }

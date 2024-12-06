@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
 
 # Liste des fichiers sources
-SRCS = cell.cpp cellfactory.cpp obstaclecell.cpp standardcell.cpp grid.cpp standardgrid.cpp toroidalgrid.cpp lifealgorithm.cpp main.cpp
+SRCS = cell.cpp cellfactory.cpp obstaclecell.cpp standardcell.cpp grid.cpp gridfactory.cpp standardgrid.cpp toroidalgrid.cpp lifealgorithm.cpp gol.cpp main.cpp
 
 # Génération automatique des fichiers objets
 OBJS = $(SRCS:.cpp=.o)

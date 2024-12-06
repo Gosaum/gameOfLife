@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <algorithm>
 using namespace std;
 
 Grid::Grid():n(DEFAULT_N),p(DEFAULT_P){
@@ -59,6 +60,8 @@ Grid::Grid(int n, int p, const vector<string>& data) : n(n), p(p) {
             grid[i][j] = CellFactory::createCell(cellType, i, j);
         }
     }
+
+    updateAliveCells();
 }
 
 Cell*** Grid::getGrid() const {
@@ -83,8 +86,18 @@ vector<Cell*> Grid::getAliveCells() const {
 
 string Grid::getGridSignature() const {
 
+    vector<Cell*> sortedAliveCells = aliveCells;
+    //trie aliveCells
+    sort(sortedAliveCells.begin(), sortedAliveCells.end(), [](Cell* a, Cell* b) {
+        if ((*a).getX() == (*b).getX()) {
+            return (*a).getY() < (*b).getY();
+        }
+        return (*a).getX() < (*b).getX();
+    });
+
+    //écrit la signature
     string signature = to_string(n) + to_string(p);
-    for(Cell* aliveCell : aliveCells){
+    for(Cell* aliveCell : sortedAliveCells){
         signature += to_string((*aliveCell).getX()) + to_string((*aliveCell).getY());
     }
     return signature;
