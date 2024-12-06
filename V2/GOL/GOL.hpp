@@ -24,9 +24,9 @@ using namespace sf;
 #include "UI.hpp"
 #include "GUI.hpp"
 #include "CLI.hpp"
+#include "UnitTest.hpp"
 
 class GOL {
-
     public :
 
     static void run();
