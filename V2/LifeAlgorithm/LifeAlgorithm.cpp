@@ -29,3 +29,30 @@ void LifeAlgorithm::toggleCells(const vector<Cell*>& cellsToToggle) {
         cell->toggleAlive();
     }
 }
+
+bool LifeAlgorithm::isGridStable() {
+    string currentSignature = grid.getGridSignature();
+    if (signatureHistory.size()>1){
+        if(signatureHistory[signatureHistory.size() - 1] == currentSignature){
+            return true;
+        }
+    }
+    signatureHistory.push_back(currentSignature);
+    return false;
+}
+
+bool LifeAlgorithm::isGridLooping(int Tmax) {
+    string currentSignature = grid.getGridSignature();
+
+    for (int T = Tmax; T >= 1; --T) {
+
+        if (static_cast<int>(signatureHistory.size()) >= T) {
+            int previousIndex = static_cast<int>(signatureHistory.size()) - T;
+            if (signatureHistory[previousIndex] == currentSignature) {
+                return true;
+            }
+        }
+    }
+    signatureHistory.push_back(currentSignature);
+    return false;
+}

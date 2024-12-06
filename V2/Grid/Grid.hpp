@@ -1,12 +1,25 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <memory>
 #include <string>
-#include <iostream>
+#include <unordered_set>
+#include <fstream>
 #include <stdexcept>
-#include "Cell.hpp"
+#include <cmath>
+#include <limits>
+#include <algorithm>
+#include <SFML/Graphics.hpp>
+#include <windows.h>
+#include <commdlg.h>
+#include <cassert>
+#include <chrono>
+#include <sstream>
 
 using namespace std;
+using namespace sf;
+
+#include "Cell.hpp"
 
 class Grid {
 protected:

@@ -1,17 +1,27 @@
 #pragma once
 
-#include <string>
+#include <iostream>
 #include <vector>
+#include <memory>
+#include <string>
+#include <unordered_set>
 #include <fstream>
 #include <stdexcept>
-#include <iostream>
+#include <cmath>
+#include <limits>
+#include <algorithm>
+#include <SFML/Graphics.hpp>
 #include <windows.h>
 #include <commdlg.h>
-#include <SFML/Graphics.hpp>
+#include <cassert>
+#include <chrono>
+#include <sstream>
+
+using namespace std;
+using namespace sf;
+
 #include "Grid.hpp"
 
-using namespace sf;
-using namespace std;
 
 class ErrorHandler {
 public:

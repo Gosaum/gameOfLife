@@ -6,6 +6,7 @@ void CLI::runConsoleMode() {
     std::cout << "=== Mode Console ===\n";
 
     try {
+        vector<pair<int, vector<vector<string>>>> iterationData;
         std::string filePath = FileHandler::openFileDialog();
         if (filePath.empty()) {
             std::cout << "Aucun fichier selectionne. Abandon.\n";
@@ -29,13 +30,47 @@ void CLI::runConsoleMode() {
             std::cout << "Iteration " << iteration + 1 << "...\n";
 
             auto toggledCells = algorithm.computeCellsToToggle();
-            if (toggledCells.empty()) {
+            if (LifeAlgorithm(&grid).isGridStable()) {
+                std::cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
+                break;
+            }
+
+            if (LifeAlgorithm(&grid).isGridLooping(4)) {
                 std::cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
                 break;
             }
 
             algorithm.toggleCells(toggledCells);
+
+            vector<vector<string>> gridState(grid->getN(), vector<string>(grid->getP()));
+            for (int x = 0; x < grid->getN(); ++x) {
+                for (int y = 0; y < grid->getP(); ++y) {
+                    auto cell = grid->getCell(x, y);
+                    if (dynamic_cast<ObstacleCell*>(cell)) {
+                        gridState[x][y] = "O";
+                    }
+                    else if (cell->isAlive()) {
+                        gridState[x][y] = "1";
+                    }
+                    else {
+                        gridState[x][y] = "0";
+                    }
+                }
+            }
+
+            iterationData.emplace_back(iteration + 1, gridState);
             grid->printGrid();
+        }
+
+        cout << "Voulez-vous sauvegarder toutes les iterations ? (Y/N) : ";
+        char saveChoice;
+        cin >> saveChoice;
+        if (saveChoice == 'Y' || saveChoice == 'y') {
+            string savePath = FileHandler::saveFileDialog();
+            if (!savePath.empty()) {
+                FileHandler::saveSimulationHistory(savePath, iterationData);
+                cout << "Toutes les iterations sauvegardees dans " << savePath << ".\n";
+            }
         }
     }
     catch (const std::exception& e) {

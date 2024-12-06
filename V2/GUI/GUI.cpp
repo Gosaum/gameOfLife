@@ -729,9 +729,12 @@ void GUI::renderGrid(Grid& grid) {
                 }
                 else {
                     auto toggledCells = LifeAlgorithm(&grid).computeCellsToToggle();
-                    if (toggledCells.empty()) {
+                    if (LifeAlgorithm(&grid).isGridStable()) {
                         simulationEnded = true;
-                        endReasonText.setString("Simulation terminee : grille stable.");
+                        endReasonText.setString("Simulation terminee : La grille est stable.");
+                    } else if (LifeAlgorithm(&grid.isGridLooping(4))) {
+                        simulationEnded = true;
+                        endReasonText.setString("Simulation terminee : La grille boucle.");
                     }
                     else {
                         LifeAlgorithm(&grid).toggleCells(toggledCells);
