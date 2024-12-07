@@ -27,7 +27,7 @@ void GOL::run() {
             else if (choice == 4) {
                 cout << "Mode Test Unitaire selectionne.\n";
                 UnitTest test;
-                test.runUnitTests();
+                test.run();
             }
             else {
                 ErrorHandler::showError("Option invalide. Veuillez redemarrer.");
