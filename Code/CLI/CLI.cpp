@@ -3,89 +3,73 @@
 CLI::CLI() : settings(100, "Standard") {}
 
 void CLI::runConsoleMode() {
-    std::cout << "=== Mode Console ===\n";
+    cout << "=== Mode Console ===\n";
 
     try {
-        // Chargement du fichier
-        std::string filePath = FileHandler::openFileDialog();
-        if (filePath.empty()) {
-            std::cout << "Aucun fichier selectionne. Abandon.\n";
-            return;
+        string filePath = FileHandler::openFileDialog();
+        while (filePath.empty()) {
+            cout << "Choix invalide. Veuillez reessayer";
+            string filePath = FileHandler::openFileDialog();
+        }
+        cout << "Fichier choisi : " << filePath << endl;
+        cout << "1. Standard\n";
+        cout << "2. Toroidal\n";
+        cout << "Choisissez le type de grille : ";
+        int gridChoice;
+        cin >> gridChoice;
+        while (gridChoice != 1 && gridChoice != 2) {
+            cout << "Choix invalide. Veuillez entrer 1 pour Standard ou 2 pour Toroidal : ";
+            cin >> gridChoice;
         }
 
-        vector<pair<int, vector<vector<std::string>>>> iterationData;
-        auto grid = FileHandler::loadGridFromFile(filePath, settings.getGridType());
+        string gridType = (gridChoice == 1) ? "Standard" : "Toroidal";
+        settings.setGridType(gridType);
 
-        // Configuration des paramètres
-        int maxIterations;
-        std::cout << "Nombre maximum d'iterations (1-10000) : ";
-        std::cin >> maxIterations;
-        settings.setMaxIterations(maxIterations);
+        auto grid = FileHandler::loadGridFromFile(filePath, settings);
+        cout << "Grille de type " << gridType << " creee avec succes.\n";
 
-        std::cout << "Grille torique ? (Y/N) : ";
-        char toroidalChoice;
-        std::cin >> toroidalChoice;
-        settings.setGridType((toroidalChoice == 'Y' || toroidalChoice == 'y') ? "Toroidal" : "Standard");
-
-        // Simulation avec détection de boucle
         LifeAlgorithm algorithm(grid.get());
-        std::unordered_set<std::string> previousStates;
+        unordered_set<string> previousStates;
         bool simulationEnded = false;
 
         for (int iteration = 0; iteration < settings.getMaxIterations(); ++iteration) {
-            std::cout << "Iteration " << iteration + 1 << "...\n";
+            cout << "Iteration " << iteration + 1 << "...\n";
 
-            // Calcul du hash pour l'état actuel de la grille
-            std::string currentHash = algorithm.hashGrid(*grid);
+            string currentHash = algorithm.hashGrid(*grid);
             if (previousStates.find(currentHash) != previousStates.end()) {
-                std::cout << "Simulation terminee : grille en boucle apres " << iteration + 1 << " iterations.\n";
+                cout << "Simulation terminee : grille en boucle apres " << iteration + 1 << " iterations.\n";
                 simulationEnded = true;
                 break;
             }
 
             previousStates.insert(currentHash);
 
-            // Sauvegarde de l'état actuel
-            vector<vector<std::string>> currentState(grid->getN(), vector<std::string>(grid->getP()));
-            for (int i = 0; i < grid->getN(); ++i) {
-                for (int j = 0; j < grid->getP(); ++j) {
-                    Cell* cell = grid->getCell(i, j);
-                    currentState[i][j] = (cell && cell->isAlive()) ? "1" : "0";
-                }
-            }
-            iterationData.emplace_back(iteration + 1, currentState);
-
-            // Calcul des cellules à basculer
             auto toggledCells = algorithm.computeCellsToToggle();
             if (toggledCells.empty()) {
-                std::cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
+                cout << "Simulation stabilisee apres " << iteration + 1 << " iterations.\n";
                 simulationEnded = true;
                 break;
             }
 
-            // Application des modifications
             algorithm.toggleCells(toggledCells);
-
-            // Affichage de la grille
             grid->printGridCLI();
         }
 
         if (!simulationEnded) {
-            std::cout << "Simulation terminee : limite d'iterations atteinte.\n";
+            cout << "Simulation terminee : limite d'iterations atteinte.\n";
         }
 
-        // Sauvegarde des itérations
-        std::cout << "Voulez-vous sauvegarder toutes les iterations ? (Y/N) : ";
+        cout << "Voulez-vous sauvegarder toutes les iterations ? (Y/N) : ";
         char saveChoice;
-        std::cin >> saveChoice;
+        cin >> saveChoice;
         if (saveChoice == 'Y' || saveChoice == 'y') {
-            std::string savePath = FileHandler::saveFileDialog();
+            string savePath = FileHandler::saveFileDialog();
             if (!savePath.empty()) {
                 FileHandler::saveSimulationHistory(savePath, iterationData);
-                std::cout << "Toutes les iterations sauvegardees dans " << savePath << ".\n";
+                cout << "Toutes les iterations sauvegardees dans " << savePath << ".\n";
             }
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Erreur : " << e.what() << std::endl;
+    } catch (const exception& e) {
+        cerr << "Erreur : " << e.what() << endl;
     }
 }

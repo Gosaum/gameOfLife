@@ -57,7 +57,7 @@ void GUI::renderBegin() {
                     try {
                         auto path = FileHandler::openFileDialog();
                         if (!path.empty()) {
-                            grid = FileHandler::loadGridFromFile(path, settings.getGridType());
+                            grid = FileHandler::loadGridFromFile(path, settings);
                             renderConfigMenu();
                             renderGrid(*grid);
                         }
@@ -71,8 +71,8 @@ void GUI::renderBegin() {
                 }
 
                 if (createButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                    renderCustomGrid();
                     renderConfigMenu();
+                    renderCustomGrid();
                     renderGrid(*grid);
                 }
             }

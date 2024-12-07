@@ -1,4 +1,4 @@
-#pragma once //include guard
+#pragma once
 
 #include <iostream>
 #include <vector>

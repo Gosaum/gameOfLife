@@ -10,20 +10,21 @@ using namespace std;
 
 class UnitTest {
 public:
-    UnitTest() : nombreTests(0), nombreReussis(0) {}
+    UnitTest();
 
     void runUnitTests();
 
 private:
     struct Test {
-        string nom;
-        function<void()> fonction;
+        string name;
+        function<void()> function;
     };
 
     vector<Test> tests;
-    mutable int nombreTests;
-    mutable int nombreReussis;
-    void ajouterTest(const string& nomTest, const function<void()>& fonctionTest);
-    void executerTests() const;
-    void verifierCondition(const string& nomTest, bool condition) const;
+    mutable int totalTests;
+    mutable int successfulTests;
+
+    void addTest(const string& testName, const function<void()>& testFunction);
+    void executeTests() const;
+    void verifyCondition(const string& testName, bool condition) const;
 };

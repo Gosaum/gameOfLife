@@ -29,18 +29,6 @@ public:
     static void showError(const std::string& message, RenderWindow* window);
 };
 
-class FileHandler {
-public:
-    static std::string openFileDialog();
-    static std::string saveFileDialog();
-    static std::unique_ptr<Grid> loadGridFromFile(const std::string& path, const std::string& type);
-    static void saveGridToFile(const Grid& grid, const std::string& path);
-    static void saveSimulationHistory(
-        const std::string& path,
-        const std::vector<std::pair<int, std::vector<std::vector<std::string>>>>& simulationHistory
-    );
-};
-
 class GameSettings {
 private:
     int maxIterations;
@@ -54,4 +42,19 @@ public:
 
     const std::string& getGridType() const;
     void setGridType(const std::string& type);
+};
+
+class FileHandler {
+private:
+    GameSettings settings;
+
+public:
+    static std::string openFileDialog();
+    static std::string saveFileDialog();
+    static std::unique_ptr<Grid> loadGridFromFile(const std::string& path, const GameSettings& settings);
+    static void saveGridToFile(const Grid& grid, const std::string& path);
+    static void saveSimulationHistory(
+        const std::string& path,
+        const std::vector<std::pair<int, std::vector<std::vector<std::string>>>>& simulationHistory
+    );
 };

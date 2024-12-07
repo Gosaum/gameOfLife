@@ -1,115 +1,174 @@
 #include "UnitTest.hpp"
-#include <limits>
 
-using namespace std;
-
-void UnitTest::ajouterTest(const string& nomTest, const function<void()>& fonctionTest) {
-    tests.push_back({nomTest, fonctionTest});
-}
-
-void UnitTest::executerTests() const {
-    nombreTests = 0;
-    nombreReussis = 0;
-
-    for (const auto& test : tests) {
-        cout << "[EN COURS] " << test.nom << "\n";
-        try {
-            test.fonction();
-            verifierCondition(test.nom, true);
-        } catch (const exception& e) {
-            verifierCondition(test.nom, false);
-            cerr << "[ERREUR] Le test a échoué : " << e.what() << "\n";
-        }
-    }
-
-    cout << "\n[RESULTAT] " << nombreReussis << " / " << nombreTests << " tests réussis.\n";
-}
-
-void UnitTest::verifierCondition(const string& nomTest, bool condition) const {
-    ++nombreTests;
-    if (condition) {
-        ++nombreReussis;
-        cout << "[REUSSI] " << nomTest << "\n";
-    } else {
-        cerr << "[ECHEC] " << nomTest << "\n";
-    }
-}
+UnitTest::UnitTest() : totalTests(0), successfulTests(0) {}
 
 void UnitTest::runUnitTests() {
-    int rows, cols;
+    // Test 1 : Voisinage de Moore dans une grille Standard
+    addTest("StandardGrid - Interaction du voisinage Moore", []() {
+        StandardGrid grid(5, 5);
 
-    cout << "Entrez le nombre de lignes pour la grille : ";
-    cin >> rows;
+        // Configuration initiale des cellules
+        grid.setCell(2, 2, "Standard");
+        grid.setCell(2, 3, "Standard");
+        grid.setCell(2, 4, "Standard");
 
-    cout << "Entrez le nombre de colonnes pour la grille : ";
-    cin >> cols;
+        grid.getCell(2, 2)->toggleAlive();
+        grid.getCell(2, 3)->toggleAlive();
+        grid.getCell(2, 4)->toggleAlive();
 
-    cout << "\nAjout des tests pour une grille de " << rows << "x" << cols << ".\n";
+        // Calcul des voisins
+        auto neighbors = grid.mooreNeighborhood(grid.getCell(2, 3));
 
-    // Test 1 : Création d'une grille StandardGrid
-    ajouterTest("Création d'une grille StandardGrid", [rows, cols]() {
-        StandardGrid grille(rows, cols);
-        if (grille.getN() != rows || grille.getP() != cols) {
-            throw runtime_error("Les dimensions de la grille StandardGrid sont incorrectes !");
+        int aliveCount = 0;
+        for (Cell* neighbor : neighbors) {
+            if (neighbor && neighbor->isAlive()) {
+                ++aliveCount;
+            }
+        }
+
+        cout << "Nombre de voisins vivants pour la cellule (2, 3) : " << aliveCount << "\n";
+        if (aliveCount != 2) {
+            throw runtime_error("Moore neighborhood count is incorrect for StandardGrid.");
         }
     });
 
-    // Test 2 : Création d'une grille ToroidalGrid
-    ajouterTest("Création d'une grille ToroidalGrid", [rows, cols]() {
-        ToroidalGrid grille(rows, cols);
-        if (grille.getN() != rows || grille.getP() != cols) {
-            throw runtime_error("Les dimensions de la grille ToroidalGrid sont incorrectes !");
+    // Test 2 : Interaction avec les bordures dans une grille Toroidal
+    addTest("ToroidalGrid - Interaction avec les bordures", []() {
+        ToroidalGrid grid(3, 3);
+
+        // Configuration initiale des cellules sur les bordures
+        grid.setCell(0, 0, "Standard");
+        grid.setCell(0, 2, "Standard");
+        grid.setCell(2, 0, "Standard");
+
+        grid.getCell(0, 0)->toggleAlive();
+        grid.getCell(0, 2)->toggleAlive();
+        grid.getCell(2, 0)->toggleAlive();
+
+        // Calcul des voisins
+        auto neighbors = grid.mooreNeighborhood(grid.getCell(0, 0));
+
+        int aliveCount = 0;
+        for (Cell* neighbor : neighbors) {
+            if (neighbor && neighbor->isAlive()) {
+                ++aliveCount;
+            }
+        }
+
+        cout << "Nombre de voisins vivants pour la cellule (0, 0) dans ToroidalGrid : " << aliveCount << "\n";
+        if (aliveCount != 2) {
+            throw runtime_error("Toroidal neighborhood count is incorrect.");
         }
     });
 
-    // Test 3 : Vérification des voisins (Moore Neighborhood)
-    ajouterTest("Voisinage Moore (StandardGrid)", [rows, cols]() {
-        StandardGrid grille(rows, cols);
-        int x, y;
-        cout << "Entrez les coordonnées x et y pour tester le voisinage : ";
-        cin >> x >> y;
+    // Test 3 : Algorithme de la vie avec un motif stable (Block) dans une grille Standard
+    addTest("LifeAlgorithm - Motif stable", []() {
+        StandardGrid grid(4, 4);
 
-        if (x < 0 || x >= rows || y < 0 || y >= cols) {
-            throw runtime_error("Coordonnées hors limites !");
-        }
+        // Configuration du motif stable (Block)
+        grid.setCell(1, 1, "Standard");
+        grid.setCell(1, 2, "Standard");
+        grid.setCell(2, 1, "Standard");
+        grid.setCell(2, 2, "Standard");
 
-        grille.setCell(x, y, "Standard");
-        auto voisins = grille.mooreNeighborhood(grille.getCell(x, y));
+        grid.getCell(1, 1)->toggleAlive();
+        grid.getCell(1, 2)->toggleAlive();
+        grid.getCell(2, 1)->toggleAlive();
+        grid.getCell(2, 2)->toggleAlive();
 
-        cout << "Nombre de voisins trouvés : " << voisins.size() << "\n";
-        if (voisins.size() != 8 && x > 0 && x < rows - 1 && y > 0 && y < cols - 1) {
-            throw runtime_error("Nombre de voisins incorrect !");
-        }
-    });
+        // Simulation de l'algorithme
+        LifeAlgorithm algorithm(&grid);
 
-    // Test 4 : Simulation de l'algorithme de la vie
-    ajouterTest("Simulation de l'algorithme de la vie (StandardGrid)", [rows, cols]() {
-        StandardGrid grille(rows, cols);
-        grille.setCell(1, 1, "Standard");
-        grille.setCell(1, 2, "Standard");
-        grille.setCell(1, 3, "Standard");
-
-        grille.getCell(1, 1)->toggleAlive();
-        grille.getCell(1, 2)->toggleAlive();
-        grille.getCell(1, 3)->toggleAlive();
-
-        LifeAlgorithm algo(&grille);
-        auto cellulesModifiees = algo.computeCellsToToggle();
-        algo.toggleCells(cellulesModifiees);
-
-        if (!grille.getCell(0, 2)->isAlive() ||
-            !grille.getCell(1, 2)->isAlive() ||
-            !grille.getCell(2, 2)->isAlive()) {
-            throw runtime_error("L'algorithme a échoué !");
-            cout << endl << "Appuyez sur ENTREE pour quitter.";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cin.get();
+        auto toggledCells = algorithm.computeCellsToToggle();
+        if (!toggledCells.empty()) {
+            throw runtime_error("Stable pattern (Block) should not change.");
         }
     });
 
-    cout << "\nLancement des tests...\n";
-    executerTests();
-    cout << endl << "Appuyez sur ENTREE pour quitter.";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
+    // Test 4 : Algorithme de la vie avec un oscillateur (Blinker) dans une grille Standard
+    addTest("LifeAlgorithm - Oscillateur (Blinker)", []() {
+        StandardGrid grid(5, 5);
+
+        // Configuration de l'oscillateur
+        grid.setCell(2, 1, "Standard");
+        grid.setCell(2, 2, "Standard");
+        grid.setCell(2, 3, "Standard");
+
+        grid.getCell(2, 1)->toggleAlive();
+        grid.getCell(2, 2)->toggleAlive();
+        grid.getCell(2, 3)->toggleAlive();
+
+        LifeAlgorithm algorithm(&grid);
+
+        // Affichage de l'état initial de la grille
+        cout << "Etat initial de la grille (Blinker) :\n";
+        grid.printGridCLI();
+
+        // Premiere iteration
+        auto toggledCells = algorithm.computeCellsToToggle();
+        cout << "Cellules a basculer lors de la premiere iteration : " << toggledCells.size() << "\n";
+        for (Cell* cell : toggledCells) {
+            if (cell) {
+                cout << "Cellule (" << cell->getX() << ", " << cell->getY() << ") va changer d'etat.\n";
+            } else {
+                throw runtime_error("Une cellule invalide a ete detectee lors de la premiere iteration.");
+            }
+        }
+
+        algorithm.toggleCells(toggledCells);
+        cout << "Etat de la grille apres la premiere iteration :\n";
+        grid.printGridCLI();
+
+        // Deuxieme iteration
+        toggledCells = algorithm.computeCellsToToggle();
+        cout << "Cellules a basculer lors de la deuxieme iteration : " << toggledCells.size() << "\n";
+        for (Cell* cell : toggledCells) {
+            if (cell) {
+                cout << "Cellule (" << cell->getX() << ", " << cell->getY() << ") va changer d'etat.\n";
+            } else {
+                throw runtime_error("Une cellule invalide a ete detectee lors de la deuxieme iteration.");
+            }
+        }
+
+        algorithm.toggleCells(toggledCells);
+        cout << "Etat de la grille apres la deuxieme iteration :\n";
+        grid.printGridCLI();
+
+        // Validation de l'etat final
+        if (!grid.getCell(2, 1)->isAlive() || !grid.getCell(2, 2)->isAlive() || !grid.getCell(2, 3)->isAlive()) {
+            throw runtime_error("Oscillator (Blinker) second phase is incorrect.");
+        }
+    });
+
+    // Execution de tous les tests
+    executeTests();
+}
+
+void UnitTest::addTest(const string& testName, const function<void()>& testFunction) {
+    tests.push_back({testName, testFunction});
+}
+
+void UnitTest::executeTests() const {
+    for (const auto& test : tests) {
+        cout << "[EN COURS] " << test.name << "\n";
+        try {
+            test.function();
+            verifyCondition(test.name, true);
+        } catch (const exception& e) {
+            verifyCondition(test.name, false);
+            cerr << "[ERREUR] " << e.what() << "\n";
+        }
+    }
+
+    cout << "\n[RESULTATS] " << successfulTests << " / " << totalTests << " tests reussis.\n";
+}
+
+void UnitTest::verifyCondition(const string& testName, bool condition) const {
+    ++totalTests;
+    if (condition) {
+        ++successfulTests;
+        cout << "[REUSSI] " << testName << "\n";
+    } else {
+        cerr << "[ECHEC] " << testName << "\n";
+    }
 }

@@ -27,6 +27,7 @@ class CLI {
 private:
     GameSettings settings;
     FileHandler fileHandler;
+    vector<pair<int, vector<vector<std::string>>>> iterationData;
 
 public:
     CLI();

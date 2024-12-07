@@ -37,6 +37,26 @@ void ErrorHandler::showError(const string& message, RenderWindow* window) {
     }
 }
 
+// Classe GameSettings
+GameSettings::GameSettings(int maxIterations, const string& gridType)
+    : maxIterations(maxIterations), gridType(gridType) {}
+
+int GameSettings::getMaxIterations() const {
+    return maxIterations;
+}
+
+void GameSettings::setMaxIterations(int iterations) {
+    maxIterations = iterations;
+}
+
+const string& GameSettings::getGridType() const {
+    return gridType;
+}
+
+void GameSettings::setGridType(const string& type) {
+    gridType = type;
+}
+
 // Classe FileHandler
 string FileHandler::openFileDialog() {
     char filename[MAX_PATH] = { 0 };
@@ -74,7 +94,7 @@ string FileHandler::saveFileDialog() {
     return "";
 }
 
-unique_ptr<Grid> FileHandler::loadGridFromFile(const string& path, const string& type) {
+std::unique_ptr<Grid> FileHandler::loadGridFromFile(const std::string& path, const GameSettings& settings) {
     ifstream file(path);
     if (!file.is_open()) {
         throw runtime_error("Impossible d'ouvrir le fichier : " + path);
@@ -83,7 +103,7 @@ unique_ptr<Grid> FileHandler::loadGridFromFile(const string& path, const string&
     int rows, cols;
     file >> rows >> cols;
 
-    auto grid = GridFactory::createGrid(type, rows, cols);
+    auto grid = GridFactory::createGrid(settings.getGridType(), rows, cols);
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             int state;
@@ -151,24 +171,4 @@ void FileHandler::saveSimulationHistory(
     }
 
     file.close();
-}
-
-// Classe GameSettings
-GameSettings::GameSettings(int maxIterations, const string& gridType)
-    : maxIterations(maxIterations), gridType(gridType) {}
-
-int GameSettings::getMaxIterations() const {
-    return maxIterations;
-}
-
-void GameSettings::setMaxIterations(int iterations) {
-    maxIterations = iterations;
-}
-
-const string& GameSettings::getGridType() const {
-    return gridType;
-}
-
-void GameSettings::setGridType(const string& type) {
-    gridType = type;
 }

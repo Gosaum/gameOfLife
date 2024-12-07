@@ -3,13 +3,19 @@
 UI::UI() : settings(100, "Standard") {}
 
 int UI::renderBegin() {
-    cout << "=== Game of Life ===\n";
-    cout << "1. Mode Console\n";
-    cout << "2. Mode Graphique (GUI)\n";
-    cout << "3. Quitter\n";
-    cout << "Choisissez une option : ";
     int choice;
-    cin >> choice;
+    bool valid = false;
+    while (!valid) {
+        cout << "=== Game of Life ===\n";
+        cout << "1. Mode Console\n";
+        cout << "2. Mode Graphique (GUI)\n";
+        cout << "3. Quitter\n";
+        cout << "Choisissez une option : ";
+        cin >> choice;
+        if (choice == 1 || choice == 2 || choice == 3 || choice == 4) {
+            valid = true;
+        }
+    }
     return choice;
 }
 

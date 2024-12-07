@@ -1,38 +1,41 @@
 #include "GOL.hpp"
 
 void GOL::run() {
+
+    UI ui;
+    int choice;
     bool valid = false;
-    while (!valid) {
-        try {
-            UI ui;
-            int choice = ui.renderBegin();
+
+    try {
+        while (!valid) {
+            choice = ui.renderBegin();
 
             if (choice == 1) {
                 CLI cli;
                 cli.runConsoleMode();
-                valid = true;
+                valid  = true;
             }
             else if (choice == 2) {
                 GUI gui;
                 gui.runGUI();
-                valid = true;
+                valid  = true;
             }
             else if (choice == 3) {
                 cout << "Au revoir !" << endl;
-                valid = true;
+                valid  = true;
             }
             else if (choice == 4) {
-                cout << "Mode Test Unitaire sélectionné.\n";
+                cout << "Mode Test Unitaire selectionne.\n";
                 UnitTest test;
                 test.runUnitTests();
             }
             else {
-                ErrorHandler::showError("Option invalide. Veuillez redémarrer.");
+                ErrorHandler::showError("Option invalide. Veuillez redemarrer.");
             }
         }
-        catch (const exception& e) {
-            ErrorHandler::showError(e.what());
-        }
+    }
+    catch (const exception& e) {
+        ErrorHandler::showError(e.what());
     }
 
     cout << endl << "Appuyez sur ENTREE pour quitter.";
