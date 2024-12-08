@@ -30,6 +30,7 @@ void CLI::runConsoleMode() {
 
         LifeAlgorithm algorithm(grid.get());
         unordered_set<string> previousStates;
+        vector<vector<vector<int>>> iterationData;
         bool simulationEnded = false;
 
         for (int iteration = 0; iteration < settings.getMaxIterations(); ++iteration) {
@@ -43,6 +44,7 @@ void CLI::runConsoleMode() {
             }
 
             previousStates.insert(currentHash);
+            iterationData.push_back(grid->getGridState());
 
             auto toggledCells = algorithm.computeCellsToToggle();
             if (toggledCells.empty()) {

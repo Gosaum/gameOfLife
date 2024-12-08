@@ -616,7 +616,7 @@ void GUI::renderGrid(Grid& grid) {
 
     auto lastUpdateTime = chrono::steady_clock::now();
     bool isDragging = false;
-    vector<pair<int, vector<vector<string>>>> iterationData;
+    vector<vector<vector<int>>> iterationData;
     std::unordered_set<std::string> previousStates;
     LifeAlgorithm algorithm(&grid);
 
@@ -648,10 +648,11 @@ void GUI::renderGrid(Grid& grid) {
                     simulationSpeed = std::min(simulationSpeed + 0.1f, 10.0f);
                     speedValueText.setString(std::to_string(simulationSpeed).substr(0, 4));
                 }
-                else if (event.key.code == Keyboard::S) {
+                if (saveButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                     string filePath = FileHandler::saveFileDialog();
                     if (!filePath.empty()) {
                         FileHandler::saveSimulationHistory(filePath, iterationData);
+                        cout << "Historique des itérations sauvegardé dans " << filePath << "\n";
                     }
                 }
                 else if (event.key.code == Keyboard::Num1) {
@@ -738,6 +739,7 @@ void GUI::renderGrid(Grid& grid) {
                         endReasonText.setString("Simulation terminee : grille en boucle.");
                     } else {
                         previousStates.insert(currentHash); // Stocke l'état actuel
+                        iterationData.push_back(grid.getGridState());
 
                         // Calcul des cellules à basculer
                         auto toggledCells = algorithm.computeCellsToToggle();

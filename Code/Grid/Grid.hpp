@@ -39,6 +39,7 @@ public:
     virtual vector<Cell*> mooreNeighborhood(Cell* cell) const = 0;
     void printGrid() const;
     void printGridCLI() const;
+    vector<vector<int>> getGridState() const;
 };
 
 class StandardGrid : public Grid {

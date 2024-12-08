@@ -54,7 +54,7 @@ public:
     static std::unique_ptr<Grid> loadGridFromFile(const std::string& path, const GameSettings& settings);
     static void saveGridToFile(const Grid& grid, const std::string& path);
     static void saveSimulationHistory(
-        const std::string& path,
-        const std::vector<std::pair<int, std::vector<std::vector<std::string>>>>& simulationHistory
+        const string& path,
+        const vector<vector<vector<int>>>& iterationData
     );
 };

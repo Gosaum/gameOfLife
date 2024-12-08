@@ -63,6 +63,19 @@ void Grid::printGridCLI() const {
     std::cout << "\033[0m\n"; // Réinitialisation de la couleur après toute la grille
 }
 
+vector<vector<int>> Grid::getGridState() const {
+    vector<vector<int>> state(n, vector<int>(p, 0));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < p; ++j) {
+            if (cells[i][j] && cells[i][j]->isAlive()) {
+                state[i][j] = 1;
+            }
+        }
+    }
+    return state;
+}
+
+
 StandardGrid::StandardGrid(int rows, int cols) : Grid(rows, cols) {}
 
 vector<Cell*> StandardGrid::mooreNeighborhood(Cell* cell) const {

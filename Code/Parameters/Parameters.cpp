@@ -149,18 +149,17 @@ void FileHandler::saveGridToFile(const Grid& grid, const string& path) {
 
 void FileHandler::saveSimulationHistory(
     const string& path,
-    const vector<pair<int, vector<vector<string>>>>& simulationHistory
+    const vector<vector<vector<int>>>& iterationData
 ) {
     ofstream file(path);
     if (!file.is_open()) {
         throw runtime_error("Impossible d'ouvrir le fichier pour la sauvegarde : " + path);
     }
 
-    for (const auto& iterationData : simulationHistory) {
-        int iteration = iterationData.first;
-        const auto& gridState = iterationData.second;
+    for (size_t iteration = 0; iteration < iterationData.size(); ++iteration) {
+        file << "Iteration: " << iteration + 1 << "\n";
+        const auto& gridState = iterationData[iteration];
 
-        file << "Iteration: " << iteration << "\n";
         for (const auto& row : gridState) {
             for (const auto& cell : row) {
                 file << cell << " ";
